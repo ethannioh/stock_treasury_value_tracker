@@ -287,6 +287,23 @@
       padding-top: 24px;
       border-top: 1px solid var(--line);
     }
+    .chart-scroll {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      margin-top: 12px;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .chart-scroll + .chart-scroll {
+      margin-top: 18px;
+    }
+    .chart-scroll > div {
+      min-width: 720px;
+    }
+    .plotly-graph-div {
+      min-height: 440px;
+    }
     @media (max-width: 1120px) {
     }
     @media (max-width: 840px) {
@@ -301,6 +318,12 @@
       }
       .card .value {
         font-size: 20px;
+      }
+      .chart-scroll > div {
+        min-width: 680px;
+      }
+      .plotly-graph-div {
+        min-height: 420px;
       }
     }
   </style>
@@ -382,8 +405,8 @@
             {% for section in plot_sections %}
             <div class="chart-block">
               <div class="market-label">{{ section.market_label }}</div>
-              {{ section.value_chart | safe }}
-              {{ section.return_chart | safe }}
+              <div class="chart-scroll">{{ section.value_chart | safe }}</div>
+              <div class="chart-scroll">{{ section.return_chart | safe }}</div>
             </div>
             {% endfor %}
           </section>

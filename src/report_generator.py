@@ -125,12 +125,27 @@ def render_html_report(
 
     plot_sections = []
     for currency, figure_set in figures.items():
+        include_plotlyjs = "cdn" if not plot_sections else False
         plot_sections.append(
             {
                 "currency": currency,
                 "market_label": market_label_from_currency(currency),
-                "value_chart": pio.to_html(figure_set["value"], include_plotlyjs="cdn", full_html=False),
-                "return_chart": pio.to_html(figure_set["return"], include_plotlyjs=False, full_html=False),
+                "value_chart": pio.to_html(
+                    figure_set["value"],
+                    include_plotlyjs=include_plotlyjs,
+                    full_html=False,
+                    default_width="100%",
+                    default_height="460px",
+                    config={"responsive": True, "displayModeBar": False},
+                ),
+                "return_chart": pio.to_html(
+                    figure_set["return"],
+                    include_plotlyjs=False,
+                    full_html=False,
+                    default_width="100%",
+                    default_height="500px",
+                    config={"responsive": True, "displayModeBar": False},
+                ),
             }
         )
 

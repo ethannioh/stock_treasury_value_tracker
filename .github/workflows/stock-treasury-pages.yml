@@ -1,6 +1,9 @@
 name: Stock Treasury Pages
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       reference_ticker_twd:
