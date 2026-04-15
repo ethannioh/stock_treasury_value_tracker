@@ -8,7 +8,8 @@ on:
         required: false
         default: "0050.TW"
   schedule:
-    - cron: "30 9 * * 1-5"
+    # GitHub Actions cron uses UTC. 05:45 UTC = 13:45 Asia/Taipei.
+    - cron: "45 5 * * *"
 
 permissions:
   contents: write
