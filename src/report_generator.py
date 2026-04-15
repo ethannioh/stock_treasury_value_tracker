@@ -125,7 +125,8 @@ def render_html_report(
 
     plot_sections = []
     for currency, figure_set in figures.items():
-        include_plotlyjs = "cdn" if not plot_sections else False
+        # Inline Plotly once so Safari/content blockers do not depend on cdn.plot.ly.
+        include_plotlyjs = True if not plot_sections else False
         plot_sections.append(
             {
                 "currency": currency,
