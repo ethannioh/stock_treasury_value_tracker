@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-04-15T17:32:44.666044",
+  "reference_ticker_twd": "0050.TW",
+  "summary": {
+    "TWD": {
+      "total_cost": 5195124.0,
+      "total_market_value": 8562548.013687134,
+      "total_dividends": 17995.0,
+      "total_pnl": 3385419.013687134,
+      "total_return_pct": 0.6516531681798421
+    },
+    "USD": {
+      "total_cost": 5121.4,
+      "total_market_value": 6092.529800415039,
+      "total_dividends": 0.0,
+      "total_pnl": 971.129800415039,
+      "total_return_pct": 0.18962193939450914
+    }
+  },
+  "holdings": [
+    {
+      "ticker": "0050.TW",
+      "name": "YUANTA SECURITIES INV TRUST CO ",
+      "currency": "TWD",
+      "shares": 7000.0,
+      "avg_cost": 73.91,
+      "last_price": 84.1500015258789,
+      "total_cost": 517370.0,
+      "market_value": 589050.0106811523,
+      "unrealized_pnl": 71680.01068115234,
+      "unrealized_return_pct": 0.13854690198726702,
+      "dividends": 0.0,
+      "total_pnl": 71680.01068115234,
+      "total_return_pct": 0.13854690198726702
+    },
+    {
+      "ticker": "0052.TW",
+      "name": "FUBON ASSET MANAGEMENT CO LTD F",
+      "currency": "TWD",
+      "shares": 9000.0,
+      "avg_cost": 43.69,
+      "last_price": 50.20000076293945,
+      "total_cost": 393210.0,
+      "market_value": 451800.0068664551,
+      "unrealized_pnl": 58590.00686645508,
+      "unrealized_return_pct": 0.14900436628380528,
+      "dividends": 0.0,
+      "total_pnl": 58590.00686645508,
+      "total_return_pct": 0.14900436628380528
+    },
+    {
+      "ticker": "00631L.TW",
+      "name": "YUANTA SECURITIES INV TRUST CO ",
+      "currency": "TWD",
+      "shares": 50600.0,
+      "avg_cost": 20.39,
+      "last_price": 25.329999923706055,
+      "total_cost": 1031734.0,
+      "market_value": 1281697.9961395264,
+      "unrealized_pnl": 249963.99613952637,
+      "unrealized_return_pct": 0.24227562156478935,
+      "dividends": 0.0,
+      "total_pnl": 249963.99613952637,
+      "total_return_pct": 0.24227562156478935
+    },
+    {
+      "ticker": "2330.TW",
+      "name": "TAIWAN SEMICONDUCTOR MANUFACTUR",
+      "currency": "TWD",
+      "shares": 3000.0,
+      "avg_cost": 1084.27,
+      "last_price": 2080.0,
+      "total_cost": 3252810.0,
+      "market_value": 6240000.0,
+      "unrealized_pnl": 2987190.0,
+      "unrealized_return_pct": 0.9183413725363608,
+      "dividends": 17995.0,
+      "total_pnl": 3005185.0,
+      "total_return_pct": 0.9238735124400134
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corporation",
+      "currency": "USD",
+      "shares": 8.0,
+      "avg_cost": 412.425,
+      "last_price": 393.1099853515625,
+      "total_cost": 3299.4,
+      "market_value": 3144.8798828125,
+      "unrealized_pnl": -154.5201171875001,
+      "unrealized_return_pct": -0.04683279298887679,
+      "dividends": 0.0,
+      "total_pnl": -154.5201171875001,
+      "total_return_pct": -0.04683279298887679
+    },
+    {
+      "ticker": "NVDA",
+      "name": "NVIDIA Corporation",
+      "currency": "USD",
+      "shares": 15.0,
+      "avg_cost": 121.46666666666667,
+      "last_price": 196.50999450683594,
+      "total_cost": 1822.0,
+      "market_value": 2947.649917602539,
+      "unrealized_pnl": 1125.649917602539,
+      "unrealized_return_pct": 0.6178100535689018,
+      "dividends": 0.0,
+      "total_pnl": 1125.649917602539,
+      "total_return_pct": 0.6178100535689018
+    }
+  ]
+}
