@@ -304,6 +304,12 @@
     .plotly-graph-div {
       min-height: 440px;
     }
+    .chart-scroll .js-plotly-plot,
+    .chart-scroll .plot-container,
+    .chart-scroll .svg-container {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
     @media (max-width: 1120px) {
     }
     @media (max-width: 840px) {
@@ -324,6 +330,91 @@
       }
       .plotly-graph-div {
         min-height: 420px;
+      }
+    }
+    @media (max-width: 430px) {
+      .shell {
+        padding: 14px 12px 32px;
+      }
+      .hero,
+      .panel {
+        padding: 14px;
+      }
+      .hero h1 {
+        font-size: 20px;
+        line-height: 1.18;
+      }
+      .hero p,
+      .panel-head p,
+      .table-caption {
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .section-title {
+        font-size: 17px;
+        line-height: 1.25;
+      }
+      .panel-head {
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .cards {
+        grid-template-columns: 1fr 1fr;
+      }
+      .card {
+        min-height: 84px;
+        padding: 10px 11px;
+      }
+      .card .value,
+      .mini-value {
+        font-size: 18px;
+      }
+      .market-label {
+        padding: 5px 8px;
+        font-size: 10px;
+      }
+      .detail-table {
+        font-size: 11px;
+      }
+      .detail-table th,
+      .detail-table td {
+        padding: 8px 7px;
+      }
+      .chart-block + .chart-block {
+        margin-top: 20px;
+        padding-top: 20px;
+      }
+      .chart-scroll {
+        overflow-x: visible;
+        margin-top: 10px;
+        padding-bottom: 0;
+      }
+      .chart-scroll > div {
+        min-width: 0 !important;
+      }
+      .plotly-graph-div {
+        min-height: 360px;
+      }
+    }
+    @media (max-width: 390px) {
+      .shell {
+        padding: 12px 10px 28px;
+      }
+      .hero,
+      .panel {
+        padding: 12px;
+      }
+      .cards {
+        grid-template-columns: 1fr;
+      }
+      .hero h1 {
+        font-size: 18px;
+      }
+      .section-title {
+        font-size: 16px;
+      }
+      .plotly-graph-div {
+        min-height: 340px;
       }
     }
   </style>
@@ -405,13 +496,141 @@
             {% for section in plot_sections %}
             <div class="chart-block">
               <div class="market-label">{{ section.market_label }}</div>
-              <div class="chart-scroll">{{ section.value_chart | safe }}</div>
-              <div class="chart-scroll">{{ section.return_chart | safe }}</div>
+              <div class="chart-scroll value-chart">{{ section.value_chart | safe }}</div>
+              <div class="chart-scroll return-chart">{{ section.return_chart | safe }}</div>
             </div>
             {% endfor %}
           </section>
         </div>
       </main>
   </div>
+  <script>
+    (function () {
+      const valueButtonsDesktop = [
+        { count: 1, label: "1D", step: "day", stepmode: "backward" },
+        { count: 7, label: "1W", step: "day", stepmode: "backward" },
+        { count: 1, label: "1M", step: "month", stepmode: "backward" },
+        { count: 1, label: "YTD", step: "year", stepmode: "todate" },
+        { count: 1, label: "1Y", step: "year", stepmode: "backward" },
+        { count: 3, label: "3Y", step: "year", stepmode: "backward" },
+        { count: 5, label: "5Y", step: "year", stepmode: "backward" },
+        { step: "all", label: "全部" }
+      ];
+      const valueButtonsMobile = [
+        { count: 1, label: "1D", step: "day", stepmode: "backward" },
+        { count: 7, label: "1W", step: "day", stepmode: "backward" },
+        { count: 1, label: "1M", step: "month", stepmode: "backward" },
+        { step: "all", label: "全部" }
+      ];
+      const chartState = new WeakMap();
+
+      function clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      }
+
+      function rememberChartState(gd) {
+        if (chartState.has(gd)) {
+          return chartState.get(gd);
+        }
+        const state = {
+          legend: clone(gd.layout.legend || {}),
+          updatemenus: clone(gd.layout.updatemenus || []),
+          xaxis: clone(gd.layout.xaxis || {}),
+          yaxis: clone(gd.layout.yaxis || {}),
+          margin: clone(gd.layout.margin || {})
+        };
+        chartState.set(gd, state);
+        return state;
+      }
+
+      function relayoutValueChart(gd, mobile, state) {
+        const update = {
+          "font.size": mobile ? 11 : 13,
+          "margin.l": mobile ? 34 : (state.margin.l || 44),
+          "margin.r": mobile ? 10 : (state.margin.r || 24),
+          "margin.t": mobile ? 88 : (state.margin.t || 108),
+          "margin.b": mobile ? 34 : (state.margin.b || 44),
+          "xaxis.tickfont.size": mobile ? 10 : (((state.xaxis || {}).tickfont || {}).size || 12),
+          "yaxis.tickfont.size": mobile ? 10 : (((state.yaxis || {}).tickfont || {}).size || 12),
+          "xaxis.nticks": mobile ? 4 : null,
+          "legend.orientation": mobile ? "h" : (state.legend.orientation || "v"),
+          "legend.x": mobile ? 0 : (state.legend.x ?? 1),
+          "legend.y": mobile ? -0.2 : (state.legend.y ?? 1),
+          "legend.xanchor": mobile ? "left" : (state.legend.xanchor || "left"),
+          "legend.yanchor": mobile ? "top" : (state.legend.yanchor || "auto"),
+          "xaxis.rangeselector.buttons": mobile ? valueButtonsMobile : valueButtonsDesktop
+        };
+        window.Plotly.relayout(gd, update);
+      }
+
+      function relayoutReturnChart(gd, mobile, state) {
+        const baseMenu = clone((state.updatemenus && state.updatemenus[0]) || {});
+        if (!baseMenu.buttons) {
+          return;
+        }
+        const updateMenu = mobile
+          ? [
+              Object.assign(baseMenu, {
+                type: "dropdown",
+                direction: "down",
+                showactive: true,
+                x: 0,
+                y: 1.18,
+                xanchor: "left",
+                yanchor: "top",
+                font: Object.assign({}, baseMenu.font || {}, { size: 10 }),
+                pad: { r: 0, t: 0, b: 0, l: 0 }
+              })
+            ]
+          : state.updatemenus;
+
+        const update = {
+          "font.size": mobile ? 11 : 13,
+          "margin.l": mobile ? 34 : (state.margin.l || 44),
+          "margin.r": mobile ? 10 : (state.margin.r || 24),
+          "margin.t": mobile ? 96 : (state.margin.t || 108),
+          "margin.b": mobile ? 34 : (state.margin.b || 44),
+          "xaxis.tickfont.size": mobile ? 10 : (((state.xaxis || {}).tickfont || {}).size || 12),
+          "yaxis.tickfont.size": mobile ? 10 : (((state.yaxis || {}).tickfont || {}).size || 12),
+          "xaxis.nticks": mobile ? 4 : null,
+          "legend.orientation": mobile ? "h" : (state.legend.orientation || "v"),
+          "legend.x": mobile ? 0 : (state.legend.x ?? 1),
+          "legend.y": mobile ? -0.2 : (state.legend.y ?? 1),
+          "legend.xanchor": mobile ? "left" : (state.legend.xanchor || "left"),
+          "legend.yanchor": mobile ? "top" : (state.legend.yanchor || "auto"),
+          updatemenus: updateMenu
+        };
+        window.Plotly.relayout(gd, update);
+      }
+
+      function applyResponsiveCharts() {
+        if (!window.Plotly) {
+          return;
+        }
+        const mobile = window.matchMedia("(max-width: 430px)").matches;
+
+        document.querySelectorAll(".value-chart .js-plotly-plot").forEach((gd) => {
+          const state = rememberChartState(gd);
+          relayoutValueChart(gd, mobile, state);
+        });
+
+        document.querySelectorAll(".return-chart .js-plotly-plot").forEach((gd) => {
+          const state = rememberChartState(gd);
+          relayoutReturnChart(gd, mobile, state);
+        });
+      }
+
+      function bindResponsiveCharts() {
+        applyResponsiveCharts();
+        window.addEventListener("resize", applyResponsiveCharts, { passive: true });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindResponsiveCharts);
+      } else {
+        bindResponsiveCharts();
+      }
+    })();
+  </script>
 </body>
 </html>
