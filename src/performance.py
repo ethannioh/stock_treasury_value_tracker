@@ -30,6 +30,7 @@ TEAL = "#2563EB"
 REFERENCE_GRAY = "#8D9995"
 DEFAULT_REFERENCE_TICKER_TWD = "0050.TW"
 PERIOD_OPTIONS = [
+    ("1d", "1D"),
     ("1w", "1W"),
     ("1m", "1M"),
     ("ytd", "YTD"),
@@ -218,6 +219,7 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
     fig.update_xaxes(
         rangeselector=dict(
             buttons=[
+                dict(count=1, label="1d", step="day", stepmode="backward"),
                 dict(count=7, label="1w", step="day", stepmode="backward"),
                 dict(count=1, label="1m", step="month", stepmode="backward"),
                 dict(count=1, label="YTD", step="year", stepmode="todate"),
@@ -252,7 +254,9 @@ def _slice_period(df: pd.DataFrame, period_key: str) -> pd.DataFrame:
         return df.copy()
 
     last_date = df.index.max()
-    if period_key == "1w":
+    if period_key == "1d":
+        start_date = last_date - pd.Timedelta(days=1)
+    elif period_key == "1w":
         start_date = last_date - pd.Timedelta(days=7)
     elif period_key == "1m":
         start_date = last_date - pd.DateOffset(months=1)
