@@ -306,6 +306,9 @@
     .chart-switcher {
       display: none;
     }
+    .chart-period-select {
+      display: none;
+    }
     .chart-scroll {
       width: 100%;
       overflow-x: auto;
@@ -520,6 +523,39 @@
         color: var(--accent-2);
         box-shadow: 0 4px 10px rgba(30, 35, 41, 0.08);
       }
+      .chart-period-select {
+        display: block;
+        margin: 10px 0 8px;
+      }
+      .chart-period-select select {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 120px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 249, 252, 0.98));
+        color: var(--muted);
+        padding: 12px 38px 12px 14px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: 0 6px 18px rgba(30, 35, 41, 0.06);
+      }
+      .chart-period-select {
+        position: relative;
+        width: fit-content;
+      }
+      .chart-period-select::after {
+        content: "▼";
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: var(--muted);
+        font-size: 11px;
+      }
       .chart-scroll.is-hidden {
         display: none;
       }
@@ -621,6 +657,18 @@
                 <button type="button" class="is-active" data-target="value">市值</button>
                 <button type="button" data-target="return">報酬率</button>
               </div>
+              <label class="chart-period-select" data-chart-group="{{ loop.index0 }}">
+                <select data-chart-group="{{ loop.index0 }}" aria-label="選擇時間區間">
+                  <option value="1D">1D</option>
+                  <option value="1W">1W</option>
+                  <option value="1M" selected>1M</option>
+                  <option value="YTD">YTD</option>
+                  <option value="1Y">1Y</option>
+                  <option value="3Y">3Y</option>
+                  <option value="5Y">5Y</option>
+                  <option value="全部">全部</option>
+                </select>
+              </label>
               <div class="chart-scroll value-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="value">{{ section.value_chart | safe }}</div>
               <div class="chart-scroll return-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="return">{{ section.return_chart | safe }}</div>
             </div>
@@ -696,7 +744,8 @@
           "legend.y": mobile ? -0.2 : (state.legend.y ?? 1),
           "legend.xanchor": mobile ? "left" : (state.legend.xanchor || "left"),
           "legend.yanchor": mobile ? "top" : (state.legend.yanchor || "auto"),
-          "xaxis.rangeselector.buttons": mobile ? valueButtonsMobile : valueButtonsDesktop,
+          "xaxis.rangeselector.visible": mobile ? false : true,
+          "xaxis.rangeselector.buttons": mobile ? valueButtonsDesktop : valueButtonsDesktop,
           height: pwaPhone ? Math.min(window.innerHeight * 0.34, 300) : null
         };
         window.Plotly.relayout(gd, update);
@@ -709,19 +758,7 @@
           return;
         }
         const updateMenu = mobile
-          ? [
-              Object.assign(baseMenu, {
-                type: "dropdown",
-                direction: "down",
-                showactive: true,
-                x: 0,
-                y: 1.18,
-                xanchor: "left",
-                yanchor: "top",
-                font: Object.assign({}, baseMenu.font || {}, { size: 10 }),
-                pad: { r: 0, t: 0, b: 0, l: 0 }
-              })
-            ]
+          ? []
           : state.updatemenus;
 
         const update = {
@@ -761,6 +798,94 @@
         });
       }
 
+      function getDateRange(xValues, period) {
+        if (!xValues || !xValues.length) {
+          return null;
+        }
+        const dates = xValues
+          .map((value) => new Date(value))
+          .filter((value) => !Number.isNaN(value.getTime()));
+        if (!dates.length) {
+          return null;
+        }
+
+        const end = dates[dates.length - 1];
+        if (period === "全部") {
+          return null;
+        }
+        if (period === "1D") {
+          const start = dates[Math.max(0, dates.length - 2)];
+          return [start, end];
+        }
+
+        const start = new Date(end);
+        if (period === "1W") {
+          start.setDate(start.getDate() - 7);
+        } else if (period === "1M") {
+          start.setMonth(start.getMonth() - 1);
+        } else if (period === "YTD") {
+          start.setMonth(0, 1);
+        } else if (period === "1Y") {
+          start.setFullYear(start.getFullYear() - 1);
+        } else if (period === "3Y") {
+          start.setFullYear(start.getFullYear() - 3);
+        } else if (period === "5Y") {
+          start.setFullYear(start.getFullYear() - 5);
+        } else {
+          return null;
+        }
+        return [start, end];
+      }
+
+      function applyValuePeriod(gd, period) {
+        const xValues = (gd.data && gd.data[0] && gd.data[0].x) || [];
+        const range = getDateRange(xValues, period);
+        if (!range) {
+          window.Plotly.relayout(gd, { "xaxis.autorange": true });
+          return;
+        }
+        window.Plotly.relayout(gd, {
+          "xaxis.autorange": false,
+          "xaxis.range": range
+        });
+      }
+
+      function applyReturnPeriod(gd, period) {
+        const state = rememberChartState(gd);
+        const menu = state && state.updatemenus && state.updatemenus[0];
+        const buttons = (menu && menu.buttons) || [];
+        const button = buttons.find((item) => item.label === period);
+        if (!button || !button.args) {
+          return;
+        }
+        const dataUpdate = button.args[0] || {};
+        const layoutUpdate = button.args[1] || {};
+        window.Plotly.update(gd, dataUpdate, layoutUpdate);
+      }
+
+      function initPeriodSelects() {
+        const mobile = window.matchMedia("(max-width: 430px)").matches;
+        document.querySelectorAll(".chart-period-select select").forEach((select) => {
+          const group = select.dataset.chartGroup;
+          const valueChart = document.querySelector('.value-chart[data-chart-group="' + group + '"] .js-plotly-plot');
+          const returnChart = document.querySelector('.return-chart[data-chart-group="' + group + '"] .js-plotly-plot');
+
+          select.onchange = () => {
+            const period = select.value;
+            if (valueChart) {
+              applyValuePeriod(valueChart, period);
+            }
+            if (returnChart) {
+              applyReturnPeriod(returnChart, period);
+            }
+          };
+
+          if (mobile) {
+            select.dispatchEvent(new Event("change"));
+          }
+        });
+      }
+
       function initChartSwitchers() {
         const phonePwa = isStandalone && window.matchMedia("(max-width: 430px)").matches;
         document.querySelectorAll(".chart-switcher").forEach((switcher) => {
@@ -794,8 +919,10 @@
       function bindResponsiveCharts() {
         applyResponsiveCharts();
         initChartSwitchers();
+        initPeriodSelects();
         window.addEventListener("resize", applyResponsiveCharts, { passive: true });
         window.addEventListener("resize", initChartSwitchers, { passive: true });
+        window.addEventListener("resize", initPeriodSelects, { passive: true });
       }
 
       if (document.readyState === "loading") {
