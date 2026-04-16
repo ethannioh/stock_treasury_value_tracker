@@ -9,6 +9,9 @@ output/*
 !output/.gitkeep
 !output/report.html
 !output/report.json
+!output/manifest.webmanifest
+!output/service-worker.js
+!output/icon.svg
 
 .streamlit/secrets.toml
 .env

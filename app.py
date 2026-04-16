@@ -24,6 +24,9 @@ try:
         build_summary_cards,
         render_html_report,
         render_json_report,
+        render_pwa_icon_svg,
+        render_pwa_manifest,
+        render_service_worker,
     )
     from src.utils import ensure_directories, write_text
     IMPORT_ERROR: Exception | None = None
@@ -125,6 +128,9 @@ def run_cli(args: argparse.Namespace) -> int:
         reference_ticker_twd=args.reference_ticker_twd,
     )
     write_text(args.json_output, json_report)
+    write_text(args.output.parent / "manifest.webmanifest", render_pwa_manifest())
+    write_text(args.output.parent / "service-worker.js", render_service_worker())
+    write_text(args.output.parent / "icon.svg", render_pwa_icon_svg())
     print(f"報表已輸出：{args.output}")
     print(f"JSON 已輸出：{args.json_output}")
     return 0
@@ -565,6 +571,10 @@ def run_streamlit() -> None:
             reference_ticker_twd=st.session_state.reference_ticker_twd,
         )
         write_text(Path(st.session_state.json_output_path), json_report)
+        output_parent = Path(st.session_state.output_path).parent
+        write_text(output_parent / "manifest.webmanifest", render_pwa_manifest())
+        write_text(output_parent / "service-worker.js", render_service_worker())
+        write_text(output_parent / "icon.svg", render_pwa_icon_svg())
         st.success(f"報表已輸出到：{st.session_state.output_path}；JSON 已輸出到：{st.session_state.json_output_path}")
 
 

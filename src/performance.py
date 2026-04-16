@@ -255,7 +255,7 @@ def _slice_period(df: pd.DataFrame, period_key: str) -> pd.DataFrame:
 
     last_date = df.index.max()
     if period_key == "1d":
-        start_date = last_date - pd.Timedelta(days=1)
+        return df.tail(2).copy()
     elif period_key == "1w":
         start_date = last_date - pd.Timedelta(days=7)
     elif period_key == "1m":

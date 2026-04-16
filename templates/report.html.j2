@@ -2,7 +2,14 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#5E5ADB">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="股票報表">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon.svg">
   <title>股票庫存績效報表</title>
   <style>
     :root {
@@ -29,6 +36,11 @@
     }
     * { box-sizing: border-box; }
     html { background: var(--bg); }
+    html.pwa-standalone,
+    body.pwa-standalone {
+      height: 100%;
+      overflow-x: hidden;
+    }
     body {
       margin: 0;
       color: var(--soft);
@@ -36,11 +48,19 @@
       font-size: 14px;
       background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
       min-height: 100vh;
+      padding:
+        env(safe-area-inset-top, 0px)
+        env(safe-area-inset-right, 0px)
+        env(safe-area-inset-bottom, 0px)
+        env(safe-area-inset-left, 0px);
     }
     .shell {
       max-width: 1440px;
       margin: 0 auto;
       padding: 28px 20px 56px;
+    }
+    .app-bar {
+      display: none;
     }
     .hero,
     .panel,
@@ -283,6 +303,9 @@
       padding-top: 24px;
       border-top: 1px solid var(--line);
     }
+    .chart-switcher {
+      display: none;
+    }
     .chart-scroll {
       width: 100%;
       overflow-x: auto;
@@ -314,6 +337,19 @@
     }
     .chart-scroll .js-plotly-plot:hover {
       box-shadow: 0 14px 34px rgba(30, 35, 41, 0.08);
+    }
+    .pwa-standalone .shell {
+      padding-top: max(16px, env(safe-area-inset-top, 0px));
+      padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+    }
+    .pwa-standalone .hero {
+      padding-top: 16px;
+    }
+    .pwa-standalone .chart-scroll {
+      margin-top: 8px;
+    }
+    .pwa-standalone .plotly-graph-div {
+      min-height: 520px;
     }
     @media (max-width: 1120px) {
     }
@@ -422,10 +458,90 @@
         min-height: 340px;
       }
     }
+    @media (display-mode: standalone) and (max-width: 430px) {
+      .app-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        margin: 0 0 10px;
+        padding: 8px 10px 12px;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(14px);
+      }
+      .app-bar-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--heading);
+        letter-spacing: -0.01em;
+      }
+      .app-bar-note {
+        margin-top: 3px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--dim);
+      }
+      .hero {
+        padding-top: 10px;
+      }
+      .hero-grid {
+        gap: 12px;
+      }
+      .hero-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      .panel-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .chart-switcher {
+        display: inline-flex;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid var(--line);
+        background: #f2f4f8;
+        border-radius: 999px;
+        margin: 8px 0 2px;
+      }
+      .chart-switcher button {
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        padding: 7px 12px;
+        border-radius: 999px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .chart-switcher button.is-active {
+        background: #ffffff;
+        color: var(--accent-2);
+        box-shadow: 0 4px 10px rgba(30, 35, 41, 0.08);
+      }
+      .chart-scroll.is-hidden {
+        display: none;
+      }
+      .plotly-graph-div {
+        min-height: min(48vh, 420px);
+      }
+      .hero,
+      .panel {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
+      <div class="app-bar">
+        <div>
+          <div class="app-bar-title">股票庫存績效報表</div>
+          <div class="app-bar-note">{{ generated_at }}</div>
+        </div>
+      </div>
       <main class="main">
         <section class="hero">
           <div class="hero-grid">
@@ -501,8 +617,12 @@
             {% for section in plot_sections %}
             <div class="chart-block">
               <div class="market-label">{{ section.market_label }}</div>
-              <div class="chart-scroll value-chart">{{ section.value_chart | safe }}</div>
-              <div class="chart-scroll return-chart">{{ section.return_chart | safe }}</div>
+              <div class="chart-switcher" data-chart-group="{{ loop.index0 }}">
+                <button type="button" class="is-active" data-target="value">市值</button>
+                <button type="button" data-target="return">報酬率</button>
+              </div>
+              <div class="chart-scroll value-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="value">{{ section.value_chart | safe }}</div>
+              <div class="chart-scroll return-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="return">{{ section.return_chart | safe }}</div>
             </div>
             {% endfor %}
           </section>
@@ -511,6 +631,18 @@
   </div>
   <script>
     (function () {
+      const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      if (isStandalone) {
+        document.documentElement.classList.add("pwa-standalone");
+        document.body.classList.add("pwa-standalone");
+      }
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+        });
+      }
+
       const valueButtonsDesktop = [
         { count: 1, label: "1D", step: "day", stepmode: "backward" },
         { count: 7, label: "1W", step: "day", stepmode: "backward" },
@@ -549,11 +681,12 @@
       }
 
       function relayoutValueChart(gd, mobile, state) {
+        const pwaPhone = isStandalone && window.matchMedia("(max-width: 430px)").matches;
         const update = {
           "font.size": mobile ? 11 : 13,
           "margin.l": mobile ? 34 : (state.margin.l || 44),
           "margin.r": mobile ? 10 : (state.margin.r || 24),
-          "margin.t": mobile ? 88 : (state.margin.t || 108),
+          "margin.t": mobile ? (pwaPhone ? 74 : 88) : (state.margin.t || 108),
           "margin.b": mobile ? 34 : (state.margin.b || 44),
           "xaxis.tickfont.size": mobile ? 10 : (((state.xaxis || {}).tickfont || {}).size || 12),
           "yaxis.tickfont.size": mobile ? 10 : (((state.yaxis || {}).tickfont || {}).size || 12),
@@ -563,12 +696,14 @@
           "legend.y": mobile ? -0.2 : (state.legend.y ?? 1),
           "legend.xanchor": mobile ? "left" : (state.legend.xanchor || "left"),
           "legend.yanchor": mobile ? "top" : (state.legend.yanchor || "auto"),
-          "xaxis.rangeselector.buttons": mobile ? valueButtonsMobile : valueButtonsDesktop
+          "xaxis.rangeselector.buttons": mobile ? valueButtonsMobile : valueButtonsDesktop,
+          height: pwaPhone ? Math.min(window.innerHeight * 0.34, 300) : null
         };
         window.Plotly.relayout(gd, update);
       }
 
       function relayoutReturnChart(gd, mobile, state) {
+        const pwaPhone = isStandalone && window.matchMedia("(max-width: 430px)").matches;
         const baseMenu = clone((state.updatemenus && state.updatemenus[0]) || {});
         if (!baseMenu.buttons) {
           return;
@@ -593,7 +728,7 @@
           "font.size": mobile ? 11 : 13,
           "margin.l": mobile ? 34 : (state.margin.l || 44),
           "margin.r": mobile ? 10 : (state.margin.r || 24),
-          "margin.t": mobile ? 96 : (state.margin.t || 108),
+          "margin.t": mobile ? (pwaPhone ? 84 : 96) : (state.margin.t || 108),
           "margin.b": mobile ? 34 : (state.margin.b || 44),
           "xaxis.tickfont.size": mobile ? 10 : (((state.xaxis || {}).tickfont || {}).size || 12),
           "yaxis.tickfont.size": mobile ? 10 : (((state.yaxis || {}).tickfont || {}).size || 12),
@@ -603,7 +738,8 @@
           "legend.y": mobile ? -0.2 : (state.legend.y ?? 1),
           "legend.xanchor": mobile ? "left" : (state.legend.xanchor || "left"),
           "legend.yanchor": mobile ? "top" : (state.legend.yanchor || "auto"),
-          updatemenus: updateMenu
+          updatemenus: updateMenu,
+          height: pwaPhone ? Math.min(window.innerHeight * 0.42, 360) : null
         };
         window.Plotly.relayout(gd, update);
       }
@@ -625,9 +761,41 @@
         });
       }
 
+      function initChartSwitchers() {
+        const phonePwa = isStandalone && window.matchMedia("(max-width: 430px)").matches;
+        document.querySelectorAll(".chart-switcher").forEach((switcher) => {
+          const group = switcher.dataset.chartGroup;
+          const buttons = switcher.querySelectorAll("button");
+          const charts = document.querySelectorAll('.chart-scroll[data-chart-group="' + group + '"]');
+
+          if (!phonePwa) {
+            charts.forEach((chart) => chart.classList.remove("is-hidden"));
+            buttons.forEach((button, index) => button.classList.toggle("is-active", index === 0));
+            return;
+          }
+
+          charts.forEach((chart) => {
+            chart.classList.toggle("is-hidden", chart.dataset.chartKind !== "value");
+          });
+
+          buttons.forEach((button) => {
+            button.onclick = () => {
+              const target = button.dataset.target;
+              buttons.forEach((item) => item.classList.toggle("is-active", item === button));
+              charts.forEach((chart) => {
+                chart.classList.toggle("is-hidden", chart.dataset.chartKind !== target);
+              });
+              applyResponsiveCharts();
+            };
+          });
+        });
+      }
+
       function bindResponsiveCharts() {
         applyResponsiveCharts();
+        initChartSwitchers();
         window.addEventListener("resize", applyResponsiveCharts, { passive: true });
+        window.addEventListener("resize", initChartSwitchers, { passive: true });
       }
 
       if (document.readyState === "loading") {

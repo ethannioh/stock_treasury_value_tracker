@@ -12,6 +12,26 @@ from .utils import format_compact_number, format_percent, pnl_css, return_css, r
 
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
+PWA_APP_NAME = "股票庫存績效報表"
+PWA_SHORT_NAME = "股票報表"
+PWA_THEME_COLOR = "#5E5ADB"
+PWA_BG_COLOR = "#FFFFFF"
+PWA_ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5E5ADB"/>
+      <stop offset="100%" stop-color="#704214"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="#FFFFFF"/>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
+  <path d="M120 342h272" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
+  <path d="M160 300l62-78 61 46 69-102" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="160" cy="300" r="14" fill="#FFFFFF"/>
+  <circle cx="222" cy="222" r="14" fill="#FFFFFF"/>
+  <circle cx="283" cy="268" r="14" fill="#FFFFFF"/>
+  <circle cx="352" cy="166" r="14" fill="#FFFFFF"/>
+</svg>"""
 
 SUMMARY_LABELS = {
     "total_cost": "總投入成本",
@@ -174,3 +194,80 @@ def render_json_report(
         "holdings": stock_summary.to_dict(orient="records") if not stock_summary.empty else [],
     }
     return json.dumps(payload, ensure_ascii=False, indent=2, default=str)
+
+
+def render_pwa_manifest() -> str:
+    payload = {
+        "name": PWA_APP_NAME,
+        "short_name": PWA_SHORT_NAME,
+        "start_url": "./",
+        "scope": "./",
+        "display": "standalone",
+        "orientation": "portrait",
+        "background_color": PWA_BG_COLOR,
+        "theme_color": PWA_THEME_COLOR,
+        "icons": [
+            {
+                "src": "./icon.svg",
+                "sizes": "any",
+                "type": "image/svg+xml",
+                "purpose": "any maskable",
+            }
+        ],
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def render_service_worker() -> str:
+    return """const CACHE_NAME = "stock-treasury-pwa-v1";
+const ASSETS = ["./", "./report.json", "./manifest.webmanifest", "./icon.svg"];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") {
+    return;
+  }
+
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put("./", copy));
+          return response;
+        })
+        .catch(() => caches.match("./"))
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(event.request).then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        return response;
+      });
+    })
+  );
+});"""
+
+
+def render_pwa_icon_svg() -> str:
+    return PWA_ICON_SVG
