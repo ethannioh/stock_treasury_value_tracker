@@ -76,23 +76,32 @@ VISIBLE_TABLE_COLUMNS = [
 ]
 
 PIE_COLORS = [
-    "#5E5ADB",
-    "#704214",
-    "#0F9F72",
-    "#D83F56",
-    "#1E90FF",
-    "#FF9F1C",
-    "#118AB2",
-    "#7A9E7E",
-    "#B56576",
-    "#6C757D",
+    "#5B8FF9",
+    "#61DDAA",
+    "#F6BD16",
+    "#E8684A",
+    "#6DC8EC",
+    "#9270CA",
+    "#FF9D4D",
+    "#269A99",
+    "#FF99C3",
+    "#7E8BFF",
 ]
+
+
+def _currency_sort_key(currency: str) -> tuple[int, str]:
+    normalized = str(currency).upper()
+    if normalized == "TWD":
+        return (0, normalized)
+    if normalized == "USD":
+        return (1, normalized)
+    return (2, normalized)
 
 
 def build_summary_cards(snapshot: dict[str, dict[str, float]]) -> list[dict[str, object]]:
     cards: list[dict[str, object]] = []
 
-    for currency, metrics in snapshot.items():
+    for currency, metrics in sorted(snapshot.items(), key=lambda item: _currency_sort_key(item[0])):
         card_items: list[dict[str, str]] = []
         for key in ["total_cost", "total_market_value", "total_dividends", "total_pnl", "total_return_pct"]:
             value = metrics[key]
@@ -252,9 +261,9 @@ def render_html_report(
     )
     template = env.get_template("report.html.j2")
 
-    currency_order = [currency for currency in snapshot.keys() if currency in figures]
+    currency_order = [currency for currency in sorted(snapshot.keys(), key=_currency_sort_key) if currency in figures]
     if stock_summary is not None and not stock_summary.empty:
-        for currency in stock_summary["currency"].drop_duplicates().tolist():
+        for currency in sorted(stock_summary["currency"].drop_duplicates().tolist(), key=_currency_sort_key):
             if currency in figures and currency not in currency_order:
                 currency_order.append(currency)
 
