@@ -9,7 +9,7 @@ from pathlib import Path
 try:
     import pandas as pd
 
-    from src.data_loader import ensure_sample_data, load_dividends, load_transactions
+    from src.data_loader import ensure_sample_data, load_dividends, load_rate_config, load_transactions
     from src.performance import (
         DEFAULT_REFERENCE_TICKER_TWD,
         build_figures_by_currency,
@@ -63,6 +63,7 @@ def write_error_log(exc: Exception, args: argparse.Namespace | None = None) -> P
                 f"json_output: {args.json_output}",
                 f"cache_dir: {args.cache_dir}",
                 f"cache_hours: {args.cache_hours}",
+                f"rate_config: {args.rate_config}",
                 f"reference_ticker_twd: {args.reference_ticker_twd}",
             ]
         )
@@ -97,20 +98,38 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def parse_args_v2() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Stock Treasury Value Tracker")
+    parser.add_argument("--transactions", type=Path, default=DATA_DIR / "transactions.csv", help="交易資料 CSV 路徑")
+    parser.add_argument("--dividends", type=Path, default=DATA_DIR / "dividends.csv", help="配息資料 CSV 路徑")
+    parser.add_argument("--rate-config", type=Path, default=DATA_DIR / "market_fee_rates.csv", help="費率設定 CSV 路徑")
+    parser.add_argument("--output", type=Path, default=OUTPUT_DIR / "report.html", help="HTML 報表輸出路徑")
+    parser.add_argument("--json-output", type=Path, default=OUTPUT_DIR / "report.json", help="JSON 報表輸出路徑")
+    parser.add_argument("--cache-dir", type=Path, default=CACHE_DIR, help="價格快取資料夾")
+    parser.add_argument("--cache-hours", type=int, default=12, help="價格快取有效小時")
+    parser.add_argument(
+        "--reference-ticker-twd",
+        default=DEFAULT_REFERENCE_TICKER_TWD,
+        help="台股報酬率參考 ticker，例如 0050.TW 或 006208.TW",
+    )
+    return parser.parse_args()
+
+
 def run_cli(args: argparse.Namespace) -> int:
     if IMPORT_ERROR is not None:
         raise RuntimeError("Application startup failed during import.") from IMPORT_ERROR
 
     ensure_directories(DATA_DIR, args.cache_dir, OUTPUT_DIR)
-    ensure_sample_data(args.transactions, args.dividends)
+    ensure_sample_data(args.transactions, args.dividends, args.rate_config)
 
-    transactions = load_transactions(args.transactions)
+    rate_config = load_rate_config(args.rate_config)
+    transactions = load_transactions(args.transactions, rate_config)
     dividends = load_dividends(args.dividends)
     fetcher = PriceFetcher(cache_dir=args.cache_dir, cache_hours=args.cache_hours)
 
-    stock_summary = calculate_stock_summary(transactions, dividends, fetcher)
-    snapshot = calculate_portfolio_snapshot(stock_summary)
-    timeline = calculate_timeline(transactions, dividends, fetcher)
+    stock_summary = calculate_stock_summary(transactions, dividends, fetcher, rate_config)
+    timeline = calculate_timeline(transactions, dividends, fetcher, rate_config)
+    snapshot = calculate_portfolio_snapshot(timeline)
     figures = build_figures_by_currency(timeline, fetcher, args.reference_ticker_twd)
 
     generated_at = pd.Timestamp.now()
@@ -433,8 +452,9 @@ def run_streamlit() -> None:
 
     import streamlit as st
 
+    rate_config_path = DATA_DIR / "market_fee_rates.csv"
     ensure_directories(DATA_DIR, CACHE_DIR, OUTPUT_DIR)
-    ensure_sample_data(DATA_DIR / "transactions.csv", DATA_DIR / "dividends.csv")
+    ensure_sample_data(DATA_DIR / "transactions.csv", DATA_DIR / "dividends.csv", rate_config_path)
 
     st.set_page_config(page_title="股票庫存績效追蹤工具", layout="wide")
     inject_streamlit_theme()
@@ -470,12 +490,13 @@ def run_streamlit() -> None:
     json_output_path = st.session_state.json_output_path
 
     try:
-        transactions = load_transactions(Path(transactions_path))
+        rate_config = load_rate_config(rate_config_path)
+        transactions = load_transactions(Path(transactions_path), rate_config)
         dividends = load_dividends(Path(dividends_path))
         fetcher = PriceFetcher(cache_dir=CACHE_DIR, cache_hours=int(cache_hours))
-        stock_summary = calculate_stock_summary(transactions, dividends, fetcher)
-        snapshot = calculate_portfolio_snapshot(stock_summary)
-        timeline = calculate_timeline(transactions, dividends, fetcher)
+        stock_summary = calculate_stock_summary(transactions, dividends, fetcher, rate_config)
+        timeline = calculate_timeline(transactions, dividends, fetcher, rate_config)
+        snapshot = calculate_portfolio_snapshot(timeline)
         figures = build_figures_by_currency(timeline, fetcher, reference_ticker_twd)
     except Exception as exc:
         st.error(f"載入資料或抓取股價時發生錯誤：{exc}")
@@ -591,7 +612,7 @@ if __name__ == "__main__":
     if in_streamlit_runtime():
         run_streamlit()
     else:
-        parsed_args = parse_args()
+        parsed_args = parse_args_v2()
         try:
             raise SystemExit(run_cli(parsed_args))
         except SystemExit:

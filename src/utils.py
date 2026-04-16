@@ -5,6 +5,10 @@ from typing import Iterable
 
 import pandas as pd
 
+DEFAULT_TW_BUY_FEE_RATE = 0.001425
+DEFAULT_TW_SELL_FEE_RATE = 0.001425
+DEFAULT_TW_SELL_TAX_RATE = 0.003
+
 
 def ensure_directories(*paths: Path) -> None:
     for path in paths:
@@ -99,6 +103,27 @@ def pnl_css(value: float | int | None) -> str:
 
 def is_taiwan_market(currency: str | None) -> bool:
     return (currency or "").upper() == "TWD"
+
+
+def default_fee_rate(currency: str | None, side: str | None) -> float:
+    if is_taiwan_market(currency):
+        if str(side or "").lower() == "buy":
+            return DEFAULT_TW_BUY_FEE_RATE
+        if str(side or "").lower() == "sell":
+            return DEFAULT_TW_SELL_FEE_RATE
+    return 0.0
+
+
+def default_tax_rate(currency: str | None, side: str | None) -> float:
+    if is_taiwan_market(currency) and str(side or "").lower() == "sell":
+        return DEFAULT_TW_SELL_TAX_RATE
+    return 0.0
+
+
+def expected_sell_cost_rate(currency: str | None) -> float:
+    if is_taiwan_market(currency):
+        return DEFAULT_TW_SELL_FEE_RATE + DEFAULT_TW_SELL_TAX_RATE
+    return 0.0
 
 
 def return_tone(value: float | int | None, currency: str | None) -> str:

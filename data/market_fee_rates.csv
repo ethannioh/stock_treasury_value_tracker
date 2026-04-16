@@ -1,0 +1,5 @@
+currency,side,fee,tax
+TWD,buy,0.001425,0
+TWD,sell,0.001425,0.003
+USD,buy,0,0
+USD,sell,0,0

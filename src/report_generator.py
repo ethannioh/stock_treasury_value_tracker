@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import plotly.graph_objects as go
 import plotly.io as pio
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -12,8 +13,8 @@ from .utils import format_compact_number, format_percent, pnl_css, return_css, r
 
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
-PWA_APP_NAME = "股票庫存績效報表"
-PWA_SHORT_NAME = "股票報表"
+PWA_APP_NAME = "Stock Treasury Tracker"
+PWA_SHORT_NAME = "Treasury"
 PWA_THEME_COLOR = "#5E5ADB"
 PWA_BG_COLOR = "#FFFFFF"
 PWA_ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -34,28 +35,58 @@ PWA_ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 </svg>"""
 
 SUMMARY_LABELS = {
-    "total_cost": "總投入成本",
-    "total_market_value": "目前總市值",
-    "total_dividends": "總配息",
+    "total_cost": "累積投入成本",
+    "total_market_value": "投資組合淨值",
+    "total_dividends": "股利收入",
     "total_pnl": "總損益",
     "total_return_pct": "總報酬率",
 }
 
 TABLE_COLUMNS = {
-    "ticker": "股票代號",
+    "ticker": "Ticker",
     "name": "名稱",
     "currency": "幣別",
-    "shares": "股數",
-    "avg_cost": "平均成本",
-    "last_price": "最新價格",
-    "total_cost": "總投入成本",
-    "market_value": "目前市值",
+    "shares": "持股",
+    "avg_cost": "剩餘均價成本",
+    "last_price": "最新價",
+    "total_cost": "剩餘成本",
+    "market_value": "持股淨值",
+    "realized_pnl": "已實現損益",
     "unrealized_pnl": "未實現損益",
     "unrealized_return_pct": "未實現報酬率",
-    "dividends": "配息收入",
+    "dividends": "股利收入",
     "total_pnl": "總損益",
     "total_return_pct": "總報酬率",
 }
+
+VISIBLE_TABLE_COLUMNS = [
+    "Ticker",
+    "名稱",
+    "持股",
+    "剩餘均價成本",
+    "最新價",
+    "剩餘成本",
+    "持股淨值",
+    "已實現損益",
+    "未實現損益",
+    "未實現報酬率",
+    "股利收入",
+    "總損益",
+    "總報酬率",
+]
+
+PIE_COLORS = [
+    "#5E5ADB",
+    "#704214",
+    "#0F9F72",
+    "#D83F56",
+    "#1E90FF",
+    "#FF9F1C",
+    "#118AB2",
+    "#7A9E7E",
+    "#B56576",
+    "#6C757D",
+]
 
 
 def build_summary_cards(snapshot: dict[str, dict[str, float]]) -> list[dict[str, object]]:
@@ -92,7 +123,7 @@ def _row_styles(row: pd.Series) -> list[str]:
     currency = row.get("幣別", "")
     columns = list(row.index)
 
-    for column_name in ["未實現損益", "總損益"]:
+    for column_name in ["已實現損益", "未實現損益", "總損益"]:
         if column_name in row.index:
             styles[columns.index(column_name)] = pnl_css(row[column_name])
 
@@ -108,27 +139,105 @@ def build_stock_summary_styler(stock_summary: pd.DataFrame) -> pd.io.formats.sty
         return None
 
     display_table = stock_summary.rename(columns=TABLE_COLUMNS).copy()
+    ordered_columns = [column for column in VISIBLE_TABLE_COLUMNS if column in display_table.columns]
+    if "幣別" in display_table.columns:
+        ordered_columns.append("幣別")
+    display_table = display_table[ordered_columns]
     styler = (
         display_table.style.hide(axis="index")
         .format(
             {
-                "股數": format_compact_number,
-                "平均成本": format_compact_number,
-                "最新價格": format_compact_number,
-                "總投入成本": format_compact_number,
-                "目前市值": format_compact_number,
+                "持股": format_compact_number,
+                "剩餘均價成本": format_compact_number,
+                "最新價": format_compact_number,
+                "剩餘成本": format_compact_number,
+                "持股淨值": format_compact_number,
+                "已實現損益": format_compact_number,
                 "未實現損益": format_compact_number,
                 "未實現報酬率": format_percent,
-                "配息收入": format_compact_number,
+                "股利收入": format_compact_number,
                 "總損益": format_compact_number,
                 "總報酬率": format_percent,
             }
         )
         .apply(_row_styles, axis=1)
-        .hide(axis="columns", subset=["幣別"])
     )
+    if "幣別" in display_table.columns:
+        styler = styler.hide(axis="columns", subset=["幣別"])
     styler.set_table_attributes('class="detail-table"')
     return styler
+
+
+def _build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Figure:
+    group = stock_summary[stock_summary["currency"] == currency].copy()
+    fig = go.Figure()
+
+    if group.empty:
+        fig.update_layout(
+            title="持股市值占比",
+            paper_bgcolor="#FFFFFF",
+            plot_bgcolor="#F7F9FC",
+            font=dict(color="#1E2329", family="Inter, Roboto, 'SF Pro Text', 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif"),
+            margin=dict(l=24, r=24, t=72, b=24),
+            annotations=[
+                dict(
+                    text="目前沒有持股資料",
+                    x=0.5,
+                    y=0.5,
+                    showarrow=False,
+                    font=dict(size=16, color="#677281"),
+                )
+            ],
+        )
+        return fig
+
+    group = group.sort_values("market_value", ascending=False, ignore_index=True)
+    total_value = float(group["market_value"].sum())
+    hover_text = [
+        f"{name}<br>淨值: {format_compact_number(value)}<br>占比: {format_percent(value / total_value if total_value else 0)}"
+        for name, value in zip(group["ticker"], group["market_value"])
+    ]
+
+    fig.add_trace(
+        go.Pie(
+            labels=group["ticker"],
+            values=group["market_value"],
+            hole=0.42,
+            sort=False,
+            direction="clockwise",
+            marker=dict(colors=PIE_COLORS, line=dict(color="#FFFFFF", width=2)),
+            textinfo="label+percent",
+            textposition="outside",
+            customdata=hover_text,
+            hovertemplate="%{customdata}<extra></extra>",
+        )
+    )
+    fig.update_layout(
+        title="持股市值占比",
+        paper_bgcolor="#FFFFFF",
+        plot_bgcolor="#F7F9FC",
+        font=dict(color="#1E2329", family="Inter, Roboto, 'SF Pro Text', 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif"),
+        margin=dict(l=24, r=24, t=72, b=24),
+        legend=dict(
+            orientation="h",
+            x=0,
+            y=-0.08,
+            xanchor="left",
+            yanchor="top",
+            bgcolor="rgba(255, 255, 255, 0.96)",
+            bordercolor="rgba(30, 35, 41, 0.10)",
+            borderwidth=1,
+            font=dict(color="#677281"),
+        ),
+    )
+    fig.add_annotation(
+        text=f"總淨值<br><b>{format_compact_number(total_value)}</b>",
+        x=0.5,
+        y=0.5,
+        showarrow=False,
+        font=dict(size=15, color="#1E2329"),
+    )
+    return fig
 
 
 def render_html_report(
@@ -143,10 +252,17 @@ def render_html_report(
     )
     template = env.get_template("report.html.j2")
 
+    currency_order = [currency for currency in snapshot.keys() if currency in figures]
+    if stock_summary is not None and not stock_summary.empty:
+        for currency in stock_summary["currency"].drop_duplicates().tolist():
+            if currency in figures and currency not in currency_order:
+                currency_order.append(currency)
+
     plot_sections = []
-    for currency, figure_set in figures.items():
-        # Inline Plotly once so Safari/content blockers do not depend on cdn.plot.ly.
-        include_plotlyjs = True if not plot_sections else False
+    include_plotlyjs = True
+    for currency in currency_order:
+        figure_set = figures[currency]
+        allocation_figure = _build_allocation_figure(stock_summary, currency)
         plot_sections.append(
             {
                 "currency": currency,
@@ -167,8 +283,17 @@ def render_html_report(
                     default_height="500px",
                     config={"responsive": True, "displayModeBar": False},
                 ),
+                "allocation_chart": pio.to_html(
+                    allocation_figure,
+                    include_plotlyjs=False,
+                    full_html=False,
+                    default_width="100%",
+                    default_height="440px",
+                    config={"responsive": True, "displayModeBar": False},
+                ),
             }
         )
+        include_plotlyjs = False
 
     styler = build_stock_summary_styler(stock_summary)
     table_html = styler.to_html() if styler is not None else ""

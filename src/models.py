@@ -10,14 +10,15 @@ import pandas as pd
 @dataclass(slots=True)
 class Transaction:
     ticker: str
-    buy_date: pd.Timestamp
-    buy_price: float
+    trade_date: pd.Timestamp
+    side: str
+    price: float
     quantity: float
     fee: float = 0.0
     tax: float = 0.0
     account: str = ""
+    currency: str = ""
     note: str = ""
-    side: str = "BUY"
 
 
 @dataclass(slots=True)

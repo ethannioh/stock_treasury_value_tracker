@@ -25,10 +25,10 @@ MUTED = "#677281"
 BLUE = "#5E5ADB"
 GREEN = "#0F9F72"
 RED = "#D83F56"
-ORANGE = "#704214"
 TEAL = "#704214"
 REFERENCE_GRAY = "#A2A9B3"
 DEFAULT_REFERENCE_TICKER_TWD = "0050.TW"
+EPSILON = 1e-9
 PERIOD_OPTIONS = [
     ("1d", "1D"),
     ("1w", "1W"),
@@ -41,26 +41,100 @@ PERIOD_OPTIONS = [
 ]
 
 
+def _compute_ticker_position_metrics(tx_df: pd.DataFrame) -> dict[str, float | str]:
+    ordered = tx_df.sort_values(["trade_date", "sort_order"], ignore_index=True)
+    shares = 0.0
+    remaining_cost = 0.0
+    gross_buy_outlay = 0.0
+    net_sell_proceeds = 0.0
+    realized_pnl = 0.0
+
+    for row in ordered.itertuples(index=False):
+        quantity = float(row.quantity)
+        gross_amount = float(row.gross_amount)
+        fees_and_tax = float(row.total_charge_amount)
+
+        if row.side == "buy":
+            shares += quantity
+            remaining_cost += gross_amount + fees_and_tax
+            gross_buy_outlay += gross_amount + fees_and_tax
+            continue
+
+        if quantity > shares + EPSILON:
+            raise ValueError(
+                f"{row.ticker} sell quantity {quantity} exceeds current holdings {shares} on {row.trade_date:%Y-%m-%d}"
+            )
+
+        average_cost = remaining_cost / shares if shares > EPSILON else 0.0
+        removed_cost = average_cost * quantity
+        proceeds = gross_amount - fees_and_tax
+
+        realized_pnl += proceeds - removed_cost
+        net_sell_proceeds += proceeds
+        shares -= quantity
+        remaining_cost -= removed_cost
+
+        if shares <= EPSILON:
+            shares = 0.0
+            remaining_cost = 0.0
+
+    return {
+        "shares": shares,
+        "remaining_cost": remaining_cost,
+        "gross_buy_outlay": gross_buy_outlay,
+        "net_sell_proceeds": net_sell_proceeds,
+        "realized_pnl": realized_pnl,
+    }
+
+
+def _net_holdings_value(
+    shares: float,
+    price: float,
+    currency: str,
+    rate_config: dict[tuple[str, str], dict[str, float]] | None = None,
+) -> float:
+    gross_market_value = shares * price
+    exit_cost_rate = _sell_cost_rate(rate_config, currency)
+    return gross_market_value * (1 - exit_cost_rate)
+
+
+def _sell_cost_rate(rate_config: dict[tuple[str, str], dict[str, float]] | None, currency: str) -> float:
+    if rate_config is None:
+        return 0.0
+    sell_rates = rate_config.get((str(currency).upper(), "sell"), {})
+    return float(sell_rates.get("fee", 0.0)) + float(sell_rates.get("tax", 0.0))
+
+
 def calculate_stock_summary(
     transactions: pd.DataFrame,
     dividends: pd.DataFrame,
     fetcher: PriceFetcher,
+    rate_config: dict[tuple[str, str], dict[str, float]] | None = None,
 ) -> pd.DataFrame:
     rows: list[dict[str, object]] = []
     grouped_transactions = transactions.groupby("ticker", sort=False)
     dividend_totals = dividends.groupby("ticker")["amount"].sum().to_dict()
 
     for ticker, tx_df in grouped_transactions:
-        total_cost = float(tx_df["transaction_cost"].sum())
-        shares = float(tx_df["quantity"].sum())
+        position_metrics = _compute_ticker_position_metrics(tx_df)
+        shares = float(position_metrics["shares"])
         if shares <= 0:
             continue
 
         snapshot = fetcher.get_price_snapshot(ticker)
-        market_value = shares * snapshot.last_price
+        total_cost = float(position_metrics["remaining_cost"])
+        gross_buy_outlay = float(position_metrics["gross_buy_outlay"])
+        realized_pnl = float(position_metrics["realized_pnl"])
+        market_value = _net_holdings_value(
+            shares,
+            snapshot.last_price,
+            snapshot.currency or infer_currency_from_ticker(ticker),
+            rate_config,
+        )
         unrealized_pnl = market_value - total_cost
         dividends_income = float(dividend_totals.get(ticker, 0.0))
-        total_pnl = unrealized_pnl + dividends_income
+        total_pnl = unrealized_pnl + realized_pnl + dividends_income
+        total_return_denominator = gross_buy_outlay if gross_buy_outlay > 0 else total_cost
 
         rows.append(
             {
@@ -71,12 +145,14 @@ def calculate_stock_summary(
                 "avg_cost": total_cost / shares if shares else 0.0,
                 "last_price": snapshot.last_price,
                 "total_cost": total_cost,
+                "gross_buy_outlay": gross_buy_outlay,
                 "market_value": market_value,
+                "realized_pnl": realized_pnl,
                 "unrealized_pnl": unrealized_pnl,
                 "unrealized_return_pct": (unrealized_pnl / total_cost) if total_cost else 0.0,
                 "dividends": dividends_income,
                 "total_pnl": total_pnl,
-                "total_return_pct": (total_pnl / total_cost) if total_cost else 0.0,
+                "total_return_pct": (total_pnl / total_return_denominator) if total_return_denominator else 0.0,
             }
         )
 
@@ -86,16 +162,17 @@ def calculate_stock_summary(
     return summary.sort_values(["currency", "ticker"], ignore_index=True)
 
 
-def calculate_portfolio_snapshot(stock_summary: pd.DataFrame) -> dict[str, dict[str, float]]:
+def calculate_portfolio_snapshot(timeline: dict[str, pd.DataFrame]) -> dict[str, dict[str, float]]:
     snapshot: dict[str, dict[str, float]] = {}
-    if stock_summary.empty:
-        return snapshot
+    for currency, df in timeline.items():
+        if df.empty:
+            continue
 
-    for currency, group in stock_summary.groupby("currency"):
-        total_cost = float(group["total_cost"].sum())
-        total_market_value = float(group["market_value"].sum())
-        total_dividends = float(group["dividends"].sum())
-        total_pnl = float(group["total_pnl"].sum())
+        latest = df.iloc[-1]
+        total_cost = float(latest["cost_basis"])
+        total_market_value = float(latest["market_value"])
+        total_dividends = float(latest["dividends"])
+        total_pnl = float(latest["total_pnl"])
         snapshot[currency] = {
             "total_cost": total_cost,
             "total_market_value": total_market_value,
@@ -103,6 +180,7 @@ def calculate_portfolio_snapshot(stock_summary: pd.DataFrame) -> dict[str, dict[
             "total_pnl": total_pnl,
             "total_return_pct": (total_pnl / total_cost) if total_cost else 0.0,
         }
+
     return snapshot
 
 
@@ -110,6 +188,7 @@ def calculate_timeline(
     transactions: pd.DataFrame,
     dividends: pd.DataFrame,
     fetcher: PriceFetcher,
+    rate_config: dict[tuple[str, str], dict[str, float]] | None = None,
 ) -> dict[str, pd.DataFrame]:
     if transactions.empty:
         return {}
@@ -131,14 +210,24 @@ def calculate_timeline(
         close_series = history["Close"].reindex(all_dates).ffill()
 
         shares_delta = pd.Series(0.0, index=all_dates)
-        cost_delta = pd.Series(0.0, index=all_dates)
+        buy_outlay_delta = pd.Series(0.0, index=all_dates)
+        sell_proceeds_delta = pd.Series(0.0, index=all_dates)
         dividend_delta = pd.Series(0.0, index=all_dates)
 
-        for _, row in transactions[transactions["ticker"] == ticker].iterrows():
-            effective_date = first_index_on_or_after(all_dates, row["buy_date"])
-            if effective_date is not None:
+        tx_df = transactions[transactions["ticker"] == ticker].sort_values(["trade_date", "sort_order"], ignore_index=True)
+        _compute_ticker_position_metrics(tx_df)
+
+        for _, row in tx_df.iterrows():
+            effective_date = first_index_on_or_after(all_dates, row["trade_date"])
+            if effective_date is None:
+                continue
+
+            if row["side"] == "buy":
                 shares_delta.loc[effective_date] += float(row["quantity"])
-                cost_delta.loc[effective_date] += float(row["transaction_cost"])
+                buy_outlay_delta.loc[effective_date] += float(row["gross_buy_outlay"])
+            else:
+                shares_delta.loc[effective_date] -= float(row["quantity"])
+                sell_proceeds_delta.loc[effective_date] += float(row["net_sell_proceeds"])
 
         for _, row in dividends[dividends["ticker"] == ticker].iterrows():
             effective_date = first_index_on_or_after(all_dates, row["dividend_date"])
@@ -146,16 +235,18 @@ def calculate_timeline(
                 dividend_delta.loc[effective_date] += float(row["amount"])
 
         shares_held = shares_delta.cumsum()
-        cost_basis = cost_delta.cumsum()
+        cumulative_buy_outlay = buy_outlay_delta.cumsum()
+        cumulative_sell_proceeds = sell_proceeds_delta.cumsum()
         cumulative_dividends = dividend_delta.cumsum()
-        market_value = close_series * shares_held
+        holdings_value = close_series * shares_held * (1 - _sell_cost_rate(rate_config, currency))
+        portfolio_value = holdings_value + cumulative_sell_proceeds
 
         bucket = timelines[currency]
         bucket["market_value"] = bucket.get("market_value", pd.Series(0.0, index=all_dates)).add(
-            market_value, fill_value=0.0
+            portfolio_value, fill_value=0.0
         )
         bucket["cost_basis"] = bucket.get("cost_basis", pd.Series(0.0, index=all_dates)).add(
-            cost_basis, fill_value=0.0
+            cumulative_buy_outlay, fill_value=0.0
         )
         bucket["dividends"] = bucket.get("dividends", pd.Series(0.0, index=all_dates)).add(
             cumulative_dividends, fill_value=0.0
@@ -219,13 +310,13 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
     fig.update_xaxes(
         rangeselector=dict(
             buttons=[
-                dict(count=1, label="1d", step="day", stepmode="backward"),
-                dict(count=7, label="1w", step="day", stepmode="backward"),
-                dict(count=1, label="1m", step="month", stepmode="backward"),
+                dict(count=1, label="1D", step="day", stepmode="backward"),
+                dict(count=7, label="1W", step="day", stepmode="backward"),
+                dict(count=1, label="1M", step="month", stepmode="backward"),
                 dict(count=1, label="YTD", step="year", stepmode="todate"),
-                dict(count=1, label="1y", step="year", stepmode="backward"),
-                dict(count=3, label="3y", step="year", stepmode="backward"),
-                dict(count=5, label="5y", step="year", stepmode="backward"),
+                dict(count=1, label="1Y", step="year", stepmode="backward"),
+                dict(count=3, label="3Y", step="year", stepmode="backward"),
+                dict(count=5, label="5Y", step="year", stepmode="backward"),
                 dict(step="all", label="全部"),
             ],
             bgcolor="rgba(255, 255, 255, 0.98)",
@@ -256,7 +347,7 @@ def _slice_period(df: pd.DataFrame, period_key: str) -> pd.DataFrame:
     last_date = df.index.max()
     if period_key == "1d":
         return df.tail(2).copy()
-    elif period_key == "1w":
+    if period_key == "1w":
         start_date = last_date - pd.Timedelta(days=7)
     elif period_key == "1m":
         start_date = last_date - pd.DateOffset(months=1)
@@ -273,11 +364,6 @@ def _slice_period(df: pd.DataFrame, period_key: str) -> pd.DataFrame:
 
     subset = df.loc[df.index >= start_date].copy()
     return subset if not subset.empty else df.tail(1).copy()
-
-
-def _build_period_return_series(df: pd.DataFrame) -> pd.Series:
-    period_return, _ = _build_period_return_metrics(df)
-    return period_return
 
 
 def _build_period_return_metrics(df: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
@@ -341,14 +427,14 @@ def _inject_zero_crossings(period_return: pd.Series) -> pd.Series:
     x_values = period_return.index
     y_values = period_return.astype(float).tolist()
 
-    for i in range(len(y_values) - 1):
-        y0 = y_values[i]
-        y1 = y_values[i + 1]
+    for index in range(len(y_values) - 1):
+        y0 = y_values[index]
+        y1 = y_values[index + 1]
         if y0 == 0 or y1 == 0 or y0 * y1 > 0:
             continue
 
-        x0 = x_values[i]
-        x1 = x_values[i + 1]
+        x0 = x_values[index]
+        x1 = x_values[index + 1]
         fraction = -y0 / (y1 - y0)
         crossing_ns = x0.value + int((x1.value - x0.value) * fraction)
         crossings.append((pd.Timestamp(crossing_ns), 0.0))
@@ -419,6 +505,7 @@ def build_figures_by_currency(
 ) -> dict[str, dict[str, go.Figure]]:
     figures: dict[str, dict[str, go.Figure]] = {}
     reference_ticker_twd = str(reference_ticker_twd or "").strip().upper()
+
     try:
         reference_history = (
             fetcher.get_price_history(reference_ticker_twd)
@@ -438,7 +525,7 @@ def build_figures_by_currency(
                 name="投資組合市值",
                 line=dict(color=BLUE, width=3),
                 fill="tozeroy",
-                fillgradient=_fill_gradient("rgba(31, 123, 216, 0.18)", "rgba(31, 123, 216, 0.02)"),
+                fillgradient=_fill_gradient("rgba(94, 90, 219, 0.18)", "rgba(94, 90, 219, 0.02)"),
                 customdata=_formatted_hover(df["market_value"]),
                 hovertemplate="投資組合市值: %{customdata}<extra></extra>",
             )
@@ -448,10 +535,10 @@ def build_figures_by_currency(
                 x=df.index,
                 y=df["cost_basis"],
                 mode="lines",
-                name="累積成本",
+                name="累積投入成本",
                 line=dict(color="#A2A9B3", width=2, dash="dot"),
                 customdata=_formatted_hover(df["cost_basis"]),
-                hovertemplate="累積成本: %{customdata}<extra></extra>",
+                hovertemplate="累積投入成本: %{customdata}<extra></extra>",
             )
         )
         value_fig.add_trace(
@@ -462,7 +549,7 @@ def build_figures_by_currency(
                 name="總損益",
                 line=dict(color=TEAL, width=2.5),
                 fill="tozeroy",
-                fillgradient=_fill_gradient("rgba(37, 99, 235, 0.14)", "rgba(37, 99, 235, 0.01)"),
+                fillgradient=_fill_gradient("rgba(112, 66, 20, 0.14)", "rgba(112, 66, 20, 0.01)"),
                 customdata=_formatted_hover(df["total_pnl"]),
                 hovertemplate="總損益: %{customdata}<extra></extra>",
             )
@@ -552,7 +639,7 @@ def build_figures_by_currency(
                 )
             labels.append(label)
 
-        _apply_common_layout(return_fig, f"投資組合報酬率 - {labels[0]}", "報酬率 (%)")
+        _apply_common_layout(return_fig, f"投資組合報酬率 - {labels[0]}", "報酬率(%)")
         _add_return_period_buttons(return_fig, labels, "投資組合報酬率", traces_per_period)
 
         figures[currency] = {"value": value_fig, "return": return_fig}
