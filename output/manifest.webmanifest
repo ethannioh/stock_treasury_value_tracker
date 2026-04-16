@@ -1,6 +1,6 @@
 {
-  "name": "股票庫存績效報表",
-  "short_name": "股票報表",
+  "name": "Stock Treasury Tracker",
+  "short_name": "Treasury",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
