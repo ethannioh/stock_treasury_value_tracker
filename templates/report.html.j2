@@ -6,48 +6,36 @@
   <title>股票庫存績效報表</title>
   <style>
     :root {
-      --bg: #f0f0f0;
-      --bg-2: #f7f7f7;
-      --panel: rgba(250, 250, 250, 0.92);
-      --panel-strong: rgba(255, 255, 255, 0.96);
-      --line: rgba(82, 88, 98, 0.14);
-      --line-strong: rgba(82, 88, 98, 0.24);
-      --text: #475569;
-      --heading: #111827;
-      --muted: #64748b;
-      --soft: #475569;
-      --dim: #94a3b8;
-      --accent: #2563eb;
-      --accent-2: #f97316;
-      --glow: rgba(37, 99, 235, 0.14);
-      --shadow: 0 22px 52px rgba(82, 88, 98, 0.12);
+      --bg: #ffffff;
+      --bg-2: #f7f9fc;
+      --panel: rgba(247, 249, 252, 0.94);
+      --panel-strong: rgba(255, 255, 255, 0.98);
+      --line: rgba(30, 35, 41, 0.10);
+      --line-strong: rgba(30, 35, 41, 0.16);
+      --text: #1e2329;
+      --heading: #1e2329;
+      --muted: #66717f;
+      --soft: #1e2329;
+      --dim: #8d98a7;
+      --accent: #704214;
+      --accent-2: #5e5adb;
+      --glow: rgba(94, 90, 219, 0.10);
+      --shadow: 0 10px 30px rgba(30, 35, 41, 0.06);
       --red: #d83f56;
       --green: #0f9f72;
-      --orange: #f97316;
+      --orange: #704214;
+      --radius: 8px;
+      --transition: 180ms ease;
     }
     * { box-sizing: border-box; }
     html { background: var(--bg); }
     body {
       margin: 0;
       color: var(--soft);
-      font-family: "Consolas", "Microsoft JhengHei", "Segoe UI", sans-serif;
-      font-size: 13px;
-      background:
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 28%),
-        radial-gradient(circle at top right, rgba(31, 123, 216, 0.055), transparent 34%),
-        linear-gradient(180deg, #f7f7f7 0%, var(--bg) 100%);
+      font-family: Inter, Roboto, "SF Pro Text", "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
+      font-size: 14px;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
       min-height: 100vh;
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(rgba(82, 88, 98, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(82, 88, 98, 0.035) 1px, transparent 1px);
-      background-size: 32px 32px;
-      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.58), transparent);
     }
     .shell {
       max-width: 1440px;
@@ -59,9 +47,9 @@
     .card,
     .mini-stat {
       border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, var(--panel) 100%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, var(--panel) 100%);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background-color var(--transition);
     }
     .eyebrow,
     .panel-kicker,
@@ -86,7 +74,7 @@
     .hero {
       position: relative;
       overflow: hidden;
-      border-radius: 0;
+      border-radius: var(--radius);
       padding: 20px 22px;
       margin-bottom: 20px;
     }
@@ -96,8 +84,8 @@
       inset: auto -20px -70px auto;
       width: 220px;
       height: 220px;
-      border-radius: 0;
-      background: radial-gradient(circle, rgba(31, 123, 216, 0.12), transparent 68%);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(94, 90, 219, 0.10), transparent 68%);
       filter: blur(14px);
     }
     .hero-grid {
@@ -110,8 +98,8 @@
     }
     .hero h1 {
       margin: 10px 0 10px;
-      font-size: 22px;
-      line-height: 1.08;
+      font-size: 24px;
+      line-height: 1.12;
       letter-spacing: 0.02em;
       color: var(--accent);
     }
@@ -127,15 +115,15 @@
       gap: 12px;
     }
     .mini-stat {
-      border-radius: 0;
+      border-radius: var(--radius);
       padding: 12px 14px;
+      background: rgba(247, 249, 252, 0.92);
     }
     .mini-value {
       margin-top: 8px;
       font-size: 22px;
       font-weight: 700;
-      color: var(--accent);
-      text-shadow: 0 0 18px rgba(37, 99, 235, 0.16);
+      color: var(--accent-2);
     }
     .mini-note {
       margin-top: 6px;
@@ -153,7 +141,7 @@
       gap: 18px;
     }
     .panel {
-      border-radius: 0;
+      border-radius: var(--radius);
       padding: 18px;
       overflow: hidden;
     }
@@ -182,8 +170,9 @@
       margin-bottom: 12px;
       padding: 6px 10px;
       border: 1px solid var(--line-strong);
-      background: rgba(37, 99, 235, 0.08);
-      color: var(--accent);
+      background: rgba(94, 90, 219, 0.06);
+      color: var(--accent-2);
+      border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.08em;
@@ -192,7 +181,7 @@
     .card {
       position: relative;
       overflow: hidden;
-      border-radius: 0;
+      border-radius: var(--radius);
       padding: 12px 14px;
       min-height: 96px;
     }
@@ -202,30 +191,37 @@
       inset: auto -24px -48px auto;
       width: 120px;
       height: 120px;
-      border-radius: 0;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 70%);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.26), transparent 70%);
       filter: blur(10px);
+    }
+    .card:hover,
+    .mini-stat:hover,
+    .panel:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(30, 35, 41, 0.08);
+      border-color: var(--line-strong);
     }
     .card.green {
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 250, 250, 0.95)),
-        linear-gradient(135deg, rgba(15, 159, 114, 0.2), rgba(31, 123, 216, 0.1));
-      border-color: rgba(15, 159, 114, 0.28);
-      box-shadow: 0 16px 36px rgba(82, 88, 98, 0.1), inset 0 0 0 1px rgba(15, 159, 114, 0.08);
+        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 249, 252, 0.98)),
+        linear-gradient(135deg, rgba(15, 159, 114, 0.12), rgba(94, 90, 219, 0.04));
+      border-color: rgba(15, 159, 114, 0.18);
+      box-shadow: 0 10px 24px rgba(30, 35, 41, 0.05);
     }
     .card.red {
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 248, 249, 0.95)),
-        linear-gradient(135deg, rgba(216, 63, 86, 0.18), rgba(249, 115, 22, 0.1));
-      border-color: rgba(216, 63, 86, 0.28);
-      box-shadow: 0 16px 36px rgba(82, 88, 98, 0.1), inset 0 0 0 1px rgba(216, 63, 86, 0.06);
+        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 249, 252, 0.98)),
+        linear-gradient(135deg, rgba(216, 63, 86, 0.10), rgba(112, 66, 20, 0.04));
+      border-color: rgba(216, 63, 86, 0.18);
+      box-shadow: 0 10px 24px rgba(30, 35, 41, 0.05);
     }
     .card.orange {
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(251, 249, 245, 0.95)),
-        linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(37, 99, 235, 0.08));
-      border-color: rgba(249, 115, 22, 0.28);
-      box-shadow: 0 16px 36px rgba(82, 88, 98, 0.1), inset 0 0 0 1px rgba(249, 115, 22, 0.06);
+        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 249, 252, 0.98)),
+        linear-gradient(135deg, rgba(112, 66, 20, 0.10), rgba(94, 90, 219, 0.04));
+      border-color: rgba(112, 66, 20, 0.18);
+      box-shadow: 0 10px 24px rgba(30, 35, 41, 0.05);
     }
     .card .label {
       margin-bottom: 12px;
@@ -242,11 +238,11 @@
     }
     .card.green .value { color: #0f9f72; }
     .card.red .value { color: #bf3349; }
-    .card.orange .value { color: #ea580c; }
+    .card.orange .value { color: var(--accent); }
     .table-shell {
-      border-radius: 0;
+      border-radius: var(--radius);
       border: 1px solid var(--line);
-      background: rgba(250, 250, 250, 0.88);
+      background: rgba(255, 255, 255, 0.96);
       overflow: auto;
     }
     .detail-table {
@@ -258,8 +254,8 @@
       position: sticky;
       top: 0;
       z-index: 1;
-      background: linear-gradient(180deg, rgba(238, 241, 245, 0.98), rgba(222, 227, 235, 0.98));
-      color: var(--accent);
+      background: linear-gradient(180deg, rgba(247, 249, 252, 0.98), rgba(240, 244, 249, 0.98));
+      color: var(--accent-2);
     }
     .detail-table th,
     .detail-table td {
@@ -273,7 +269,7 @@
       background: rgba(82, 88, 98, 0.035);
     }
     .detail-table tbody tr:hover {
-      background: rgba(31, 123, 216, 0.075);
+      background: rgba(94, 90, 219, 0.06);
     }
     .detail-table th:first-child,
     .detail-table td:first-child,
@@ -309,6 +305,15 @@
     .chart-scroll .svg-container {
       width: 100% !important;
       max-width: 100% !important;
+      border-radius: var(--radius);
+    }
+    .chart-scroll .js-plotly-plot {
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 26px rgba(30, 35, 41, 0.05);
+      overflow: hidden;
+    }
+    .chart-scroll .js-plotly-plot:hover {
+      box-shadow: 0 14px 34px rgba(30, 35, 41, 0.08);
     }
     @media (max-width: 1120px) {
     }
@@ -427,7 +432,7 @@
             <div>
               <div class="eyebrow">Performance Overview</div>
               <h1>股票庫存績效報表</h1>
-              <p>以明亮科技儀表板風格整理投資組合摘要、股票明細與互動式歷史績效圖，並保留你指定的市場配色規則、折線填色與 0% 穿越分段上色邏輯。</p>
+              <p>以明亮簡潔風整理投資組合摘要、股票明細與互動式歷史績效圖，保留市場配色規則、折線填色與 0% 穿越分段上色邏輯。</p>
             </div>
             <div class="hero-stats">
               <div class="mini-stat">
@@ -437,8 +442,8 @@
               </div>
               <div class="mini-stat">
                 <div class="mini-label">Visual Mode</div>
-                <div class="mini-value">Light Console</div>
-                <div class="mini-note">清爽、明亮、科技儀表板</div>
+                <div class="mini-value">Clean & Airy</div>
+                <div class="mini-note">白底、柔和紫金 accent、簡潔展示型報表</div>
               </div>
             </div>
           </div>
@@ -451,14 +456,14 @@
                 <div class="panel-kicker">Portfolio Snapshot</div>
                 <h2 class="section-title">投資組合總覽</h2>
               </div>
-              <p>依市場規則呈現 KPI 卡片配色</p>
+              <p>以明亮簡潔卡片呈現市場摘要，滑鼠移入可快速查看數值</p>
             </div>
             {% for group in summary_cards %}
             <div class="currency-block">
               <div class="market-label">{{ group.market_label }}</div>
               <div class="cards">
                 {% for item in group.card_items %}
-                <article class="card {{ item.tone }}">
+                <article class="card {{ item.tone }}" title="{{ item.label }}：{{ item.value }}">
                   <div class="label">{{ item.label }}</div>
                   <div class="value">{{ item.value }}</div>
                 </article>
@@ -491,7 +496,7 @@
                 <div class="panel-kicker">History & Return</div>
                 <h2 class="section-title">歷史績效圖</h2>
               </div>
-              <p>保留折線塗色、區間報酬率與分段上色邏輯</p>
+              <p>保留折線塗色、區間報酬率與分段上色邏輯，並優化手機與展示版面</p>
             </div>
             {% for section in plot_sections %}
             <div class="chart-block">

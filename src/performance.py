@@ -15,19 +15,19 @@ from .utils import (
 )
 
 
-BG = "#F0F0F0"
-PANEL = "#FAFAFA"
-GRID = "rgba(82, 88, 98, 0.14)"
-GRID_STRONG = "rgba(82, 88, 98, 0.24)"
-TEXT = "#475569"
-TITLE = "#111827"
-MUTED = "#64748B"
-BLUE = "#1F7BD8"
+BG = "#FFFFFF"
+PANEL = "#F7F9FC"
+GRID = "rgba(30, 35, 41, 0.10)"
+GRID_STRONG = "rgba(30, 35, 41, 0.18)"
+TEXT = "#1E2329"
+TITLE = "#1E2329"
+MUTED = "#677281"
+BLUE = "#5E5ADB"
 GREEN = "#0F9F72"
 RED = "#D83F56"
-ORANGE = "#F97316"
-TEAL = "#2563EB"
-REFERENCE_GRAY = "#8D9995"
+ORANGE = "#704214"
+TEAL = "#704214"
+REFERENCE_GRAY = "#A2A9B3"
 DEFAULT_REFERENCE_TICKER_TWD = "0050.TW"
 PERIOD_OPTIONS = [
     ("1d", "1D"),
@@ -201,17 +201,17 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
         legend_title="曲線",
         paper_bgcolor=BG,
         plot_bgcolor=PANEL,
-        font=dict(color=TEXT, family="Consolas, Microsoft JhengHei, Segoe UI, sans-serif"),
+        font=dict(color=TEXT, family="Inter, Roboto, 'SF Pro Text', 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif"),
         margin=dict(l=44, r=24, t=108, b=44),
         title_font=dict(size=20, color=TITLE),
         legend=dict(
-            bgcolor="rgba(255, 255, 255, 0.82)",
+            bgcolor="rgba(255, 255, 255, 0.96)",
             bordercolor=GRID,
             borderwidth=1,
             font=dict(color=MUTED),
         ),
         hoverlabel=dict(
-            bgcolor="rgba(255, 255, 255, 0.96)",
+            bgcolor="rgba(255, 255, 255, 0.98)",
             bordercolor=GRID_STRONG,
             font=dict(color=TITLE),
         ),
@@ -228,8 +228,8 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
                 dict(count=5, label="5y", step="year", stepmode="backward"),
                 dict(step="all", label="全部"),
             ],
-            bgcolor="rgba(255, 255, 255, 0.92)",
-            activecolor="rgba(37, 99, 235, 0.14)",
+            bgcolor="rgba(255, 255, 255, 0.98)",
+            activecolor="rgba(94, 90, 219, 0.14)",
             bordercolor=GRID,
             font=dict(color=MUTED),
         ),
@@ -403,7 +403,7 @@ def _add_return_period_buttons(fig: go.Figure, labels: list[str], title: str, tr
                 yanchor="top",
                 showactive=True,
                 buttons=buttons,
-                bgcolor="rgba(255, 255, 255, 0.92)",
+                bgcolor="rgba(255, 255, 255, 0.98)",
                 bordercolor=GRID,
                 font=dict(color=MUTED),
             )
@@ -449,7 +449,7 @@ def build_figures_by_currency(
                 y=df["cost_basis"],
                 mode="lines",
                 name="累積成本",
-                line=dict(color="#9AABA6", width=2, dash="dot"),
+                line=dict(color="#A2A9B3", width=2, dash="dot"),
                 customdata=_formatted_hover(df["cost_basis"]),
                 hovertemplate="累積成本: %{customdata}<extra></extra>",
             )
