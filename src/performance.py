@@ -15,18 +15,19 @@ from .utils import (
 )
 
 
-BG = "#FFFFFF"
-PANEL = "#F7F9FC"
-GRID = "rgba(30, 35, 41, 0.10)"
-GRID_STRONG = "rgba(30, 35, 41, 0.18)"
-TEXT = "#1E2329"
-TITLE = "#1E2329"
-MUTED = "#677281"
+BG = "#FFFCF7"
+PANEL = "#F4F1EA"
+GRID = "rgba(22, 34, 56, 0.10)"
+GRID_STRONG = "rgba(22, 34, 56, 0.18)"
+TEXT = "#162235"
+TITLE = "#132238"
+MUTED = "#667085"
 BLUE = "#5E5ADB"
 GREEN = "#0F9F72"
 RED = "#D83F56"
 TEAL = "#704214"
 REFERENCE_GRAY = "#A2A9B3"
+CHART_FONT_FAMILY = "'Aptos', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
 DEFAULT_REFERENCE_TICKER_TWD = "0050.TW"
 EPSILON = 1e-9
 PERIOD_OPTIONS = [
@@ -39,6 +40,16 @@ PERIOD_OPTIONS = [
     ("5y", "5Y"),
     ("all", "全部"),
 ]
+DEFAULT_PERIOD_KEY = "ytd"
+
+
+def _currency_sort_key(currency: str) -> tuple[int, str]:
+    normalized = str(currency).upper()
+    if normalized == "TWD":
+        return (0, normalized)
+    if normalized == "USD":
+        return (1, normalized)
+    return (2, normalized)
 
 
 def _compute_ticker_position_metrics(tx_df: pd.DataFrame) -> dict[str, float | str]:
@@ -292,17 +303,17 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
         legend_title="曲線",
         paper_bgcolor=BG,
         plot_bgcolor=PANEL,
-        font=dict(color=TEXT, family="Inter, Roboto, 'SF Pro Text', 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif"),
+        font=dict(color=TEXT, family=CHART_FONT_FAMILY),
         margin=dict(l=44, r=24, t=108, b=44),
         title_font=dict(size=20, color=TITLE),
         legend=dict(
-            bgcolor="rgba(255, 255, 255, 0.96)",
+            bgcolor="rgba(255, 252, 247, 0.96)",
             bordercolor=GRID,
             borderwidth=1,
             font=dict(color=MUTED),
         ),
         hoverlabel=dict(
-            bgcolor="rgba(255, 255, 255, 0.98)",
+            bgcolor="rgba(255, 252, 247, 0.98)",
             bordercolor=GRID_STRONG,
             font=dict(color=TITLE),
         ),
@@ -319,8 +330,8 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
                 dict(count=5, label="5Y", step="year", stepmode="backward"),
                 dict(step="all", label="全部"),
             ],
-            bgcolor="rgba(255, 255, 255, 0.98)",
-            activecolor="rgba(94, 90, 219, 0.14)",
+            bgcolor="rgba(255, 252, 247, 0.98)",
+            activecolor="rgba(15, 159, 114, 0.14)",
             bordercolor=GRID,
             font=dict(color=MUTED),
         ),
@@ -331,6 +342,13 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
         linecolor=GRID,
         tickfont=dict(color=MUTED),
     )
+
+
+def _period_xaxis_range(df: pd.DataFrame, period_key: str) -> list[pd.Timestamp] | None:
+    period_df = _slice_period(df, period_key)
+    if period_df.empty:
+        return None
+    return [period_df.index.min(), period_df.index.max()]
     fig.update_yaxes(
         gridcolor=GRID,
         zerolinecolor=GRID_STRONG,
@@ -398,6 +416,11 @@ def _format_legend_value(label: str, values: pd.Series) -> str:
     return f"{label} 終值 {format_percent(final_value / 100)}"
 
 
+def _format_amount_legend_value(label: str, values: pd.Series) -> str:
+    final_value = float(values.dropna().iloc[-1]) if not values.dropna().empty else 0.0
+    return f"{label} 終值 {format_compact_number(final_value)}"
+
+
 def _align_metric_to_index(values: pd.Series, target_index: pd.DatetimeIndex) -> pd.Series:
     if values.empty:
         return pd.Series(0.0, index=target_index)
@@ -461,6 +484,7 @@ def _split_return_series(period_return: pd.Series) -> tuple[pd.Series, pd.Series
 def _add_return_period_buttons(fig: go.Figure, labels: list[str], title: str, traces_per_period: int) -> None:
     buttons = []
     trace_count = len(labels) * traces_per_period
+    active_index = next((idx for idx, (_, label) in enumerate(PERIOD_OPTIONS) if label == "YTD"), 0)
 
     for index, label in enumerate(labels):
         visible = [False] * trace_count
@@ -489,7 +513,8 @@ def _add_return_period_buttons(fig: go.Figure, labels: list[str], title: str, tr
                 yanchor="top",
                 showactive=True,
                 buttons=buttons,
-                bgcolor="rgba(255, 255, 255, 0.98)",
+                active=active_index,
+                bgcolor="rgba(255, 252, 247, 0.98)",
                 bordercolor=GRID,
                 font=dict(color=MUTED),
             )
@@ -515,14 +540,19 @@ def build_figures_by_currency(
     except Exception:
         reference_history = pd.DataFrame()
 
-    for currency, df in timeline.items():
+    for currency in sorted(timeline.keys(), key=_currency_sort_key):
+        df = timeline[currency]
+        default_position = next((idx for idx, (period_key, _) in enumerate(PERIOD_OPTIONS) if period_key == DEFAULT_PERIOD_KEY), 0)
         value_fig = go.Figure()
+        market_value_legend = _format_amount_legend_value("投資組合市值", df["market_value"])
+        cost_basis_legend = _format_amount_legend_value("累積投入成本", df["cost_basis"])
+        total_pnl_legend = _format_amount_legend_value("總損益", df["total_pnl"])
         value_fig.add_trace(
             go.Scatter(
                 x=df.index,
                 y=df["market_value"],
                 mode="lines",
-                name="投資組合市值",
+                name=market_value_legend,
                 line=dict(color=BLUE, width=3),
                 fill="tozeroy",
                 fillgradient=_fill_gradient("rgba(94, 90, 219, 0.18)", "rgba(94, 90, 219, 0.02)"),
@@ -535,7 +565,7 @@ def build_figures_by_currency(
                 x=df.index,
                 y=df["cost_basis"],
                 mode="lines",
-                name="累積投入成本",
+                name=cost_basis_legend,
                 line=dict(color="#A2A9B3", width=2, dash="dot"),
                 customdata=_formatted_hover(df["cost_basis"]),
                 hovertemplate="累積投入成本: %{customdata}<extra></extra>",
@@ -546,7 +576,7 @@ def build_figures_by_currency(
                 x=df.index,
                 y=df["total_pnl"],
                 mode="lines",
-                name="總損益",
+                name=total_pnl_legend,
                 line=dict(color=TEAL, width=2.5),
                 fill="tozeroy",
                 fillgradient=_fill_gradient("rgba(112, 66, 20, 0.14)", "rgba(112, 66, 20, 0.01)"),
@@ -555,6 +585,9 @@ def build_figures_by_currency(
             )
         )
         _apply_common_layout(value_fig, "投資組合價值與損益", "金額")
+        default_value_range = _period_xaxis_range(df, DEFAULT_PERIOD_KEY)
+        if default_value_range is not None:
+            value_fig.update_xaxes(range=default_value_range)
 
         return_fig = go.Figure()
         labels: list[str] = []
@@ -586,7 +619,7 @@ def build_figures_by_currency(
                     y=positive_series,
                     mode="lines",
                     name=portfolio_legend,
-                    visible=position == 0,
+                    visible=position == default_position,
                     showlegend=True,
                     line=dict(color=positive_color, width=3),
                     fill="tozeroy",
@@ -606,7 +639,7 @@ def build_figures_by_currency(
                     y=negative_series,
                     mode="lines",
                     name=portfolio_legend,
-                    visible=position == 0,
+                    visible=position == default_position,
                     showlegend=False,
                     line=dict(color=negative_color, width=3),
                     fill="tozeroy",
@@ -630,7 +663,7 @@ def build_figures_by_currency(
                         y=reference_return,
                         mode="lines",
                         name=_format_legend_value(reference_ticker_twd, reference_return),
-                        visible=position == 0,
+                        visible=position == default_position,
                         showlegend=True,
                         line=dict(color=REFERENCE_GRAY, width=2.2),
                         customdata=_formatted_hover(reference_return / 100, is_percent=True),
@@ -639,7 +672,8 @@ def build_figures_by_currency(
                 )
             labels.append(label)
 
-        _apply_common_layout(return_fig, f"投資組合報酬率 - {labels[0]}", "報酬率(%)")
+        default_label = next((label for period_key, label in PERIOD_OPTIONS if period_key == DEFAULT_PERIOD_KEY), labels[0])
+        _apply_common_layout(return_fig, f"投資組合報酬率 - {default_label}", "報酬率(%)")
         _add_return_period_buttons(return_fig, labels, "投資組合報酬率", traces_per_period)
 
         figures[currency] = {"value": value_fig, "return": return_fig}

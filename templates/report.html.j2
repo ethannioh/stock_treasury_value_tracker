@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#5E5ADB">
+  <meta name="theme-color" content="#132238">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="股票報表">
@@ -13,26 +13,35 @@
   <title>股票庫存績效報表</title>
   <style>
     :root {
-      --bg: #ffffff;
-      --bg-2: #f7f9fc;
-      --panel: rgba(247, 249, 252, 0.94);
-      --panel-strong: rgba(255, 255, 255, 0.98);
-      --line: rgba(30, 35, 41, 0.10);
-      --line-strong: rgba(30, 35, 41, 0.16);
-      --text: #1e2329;
-      --heading: #1e2329;
-      --muted: #66717f;
-      --soft: #1e2329;
-      --dim: #8d98a7;
-      --accent: #704214;
-      --accent-2: #5e5adb;
-      --glow: rgba(94, 90, 219, 0.10);
-      --shadow: 0 10px 30px rgba(30, 35, 41, 0.06);
+      --bg: #f7f3ec;
+      --bg-soft: #fffcf7;
+      --bg-tint: #eef4ef;
+      --surface: rgba(255, 255, 255, 0.74);
+      --surface-strong: rgba(255, 252, 247, 0.9);
+      --surface-deep: #132238;
+      --surface-ink: #1b2d45;
+      --line: rgba(19, 34, 56, 0.08);
+      --line-strong: rgba(19, 34, 56, 0.14);
+      --text: #223249;
+      --heading: #102038;
+      --muted: #667085;
+      --soft: #344054;
+      --dim: #8b95a7;
+      --brand: #132238;
+      --brand-2: #0f9f72;
+      --amber: #bc7a25;
       --red: #d83f56;
       --green: #0f9f72;
-      --orange: #704214;
-      --radius: 8px;
+      --shadow-lg: 0 28px 70px rgba(15, 23, 42, 0.08);
+      --shadow-md: 0 18px 44px rgba(15, 23, 42, 0.06);
+      --shadow-sm: 0 10px 26px rgba(15, 23, 42, 0.05);
+      --radius-xl: 32px;
+      --radius-lg: 26px;
+      --radius-md: 22px;
+      --radius-sm: 16px;
       --transition: 180ms ease;
+      --font-sans: "Aptos", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+      --font-numeric: "Bahnschrift", "Aptos", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
     }
     * { box-sizing: border-box; }
     html { background: var(--bg); }
@@ -43,39 +52,70 @@
     }
     body {
       margin: 0;
-      color: var(--soft);
-      font-family: Inter, Roboto, "SF Pro Text", "Helvetica Neue", Arial, "Microsoft JhengHei", sans-serif;
-      font-size: 14px;
-      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
       min-height: 100vh;
+      color: var(--soft);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      background:
+        radial-gradient(circle at top left, rgba(19, 34, 56, 0.08), transparent 28%),
+        radial-gradient(circle at 82% 14%, rgba(15, 159, 114, 0.12), transparent 24%),
+        linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 52%, #f3efe7 100%);
       padding:
         env(safe-area-inset-top, 0px)
         env(safe-area-inset-right, 0px)
         env(safe-area-inset-bottom, 0px)
         env(safe-area-inset-left, 0px);
     }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(19, 34, 56, 0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(19, 34, 56, 0.028) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent);
+      opacity: 0.48;
+    }
+    a { color: inherit; }
     .shell {
-      max-width: 1440px;
+      position: relative;
+      z-index: 1;
+      max-width: 1480px;
       margin: 0 auto;
-      padding: 28px 20px 56px;
+      padding: 24px 20px 56px;
     }
     .app-bar {
       display: none;
     }
+    .topbar,
     .hero,
     .panel,
     .card,
-    .mini-stat {
+    .status-tile,
+    .chart-module {
       border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, var(--panel) 100%);
-      box-shadow: var(--shadow);
-      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background-color var(--transition);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, var(--surface) 100%);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+    .topbar:hover,
+    .hero:hover,
+    .panel:hover,
+    .chart-module:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--line-strong);
     }
     .eyebrow,
     .panel-kicker,
     .mini-label,
     .label,
-    .table-caption {
+    .table-caption,
+    .module-kicker,
+    .brand-eyebrow {
       text-transform: uppercase;
       letter-spacing: 0.18em;
       font-size: 10px;
@@ -85,8 +125,70 @@
     .mini-label,
     .label,
     .table-caption,
+    .module-kicker,
+    .brand-eyebrow,
     .muted {
       color: var(--dim);
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 25% 22%, rgba(255, 255, 255, 0.72), transparent 28%),
+        linear-gradient(135deg, var(--surface-deep) 0%, var(--brand-2) 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      flex: 0 0 auto;
+    }
+    .brand-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--heading);
+    }
+    .topbar-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .meta-pill,
+    .market-label,
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--soft);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+    }
+    .meta-pill strong,
+    .hero-tag strong {
+      color: var(--heading);
+      font-family: var(--font-numeric);
+      letter-spacing: 0;
     }
     .main {
       min-width: 0;
@@ -94,176 +196,218 @@
     .hero {
       position: relative;
       overflow: hidden;
-      border-radius: var(--radius);
-      padding: 20px 22px;
+      border-radius: var(--radius-xl);
+      padding: 28px;
       margin-bottom: 20px;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 82% 22%, rgba(15, 159, 114, 0.18), transparent 24%),
+        radial-gradient(circle at 14% 16%, rgba(19, 34, 56, 0.1), transparent 30%);
+      pointer-events: none;
     }
     .hero::after {
       content: "";
       position: absolute;
-      inset: auto -20px -70px auto;
-      width: 220px;
-      height: 220px;
+      inset: auto -40px -94px auto;
+      width: 260px;
+      height: 260px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(94, 90, 219, 0.10), transparent 68%);
-      filter: blur(14px);
+      background: radial-gradient(circle, rgba(188, 122, 37, 0.14), transparent 68%);
+      filter: blur(18px);
+      pointer-events: none;
     }
     .hero-grid {
       position: relative;
       z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.8fr);
+      display: block;
+    }
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       gap: 18px;
-      align-items: end;
     }
     .hero h1 {
       margin: 10px 0 10px;
-      font-size: 24px;
-      line-height: 1.12;
-      letter-spacing: 0.02em;
-      color: var(--accent);
+      font-size: 40px;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      color: var(--heading);
+      max-width: 760px;
     }
     .hero p {
       margin: 0;
-      max-width: 720px;
-      color: var(--dim);
-      font-size: 13px;
-      line-height: 1.6;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
     }
-    .hero-stats {
-      display: grid;
-      gap: 12px;
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-    .mini-stat {
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      background: rgba(247, 249, 252, 0.92);
-    }
-    .mini-value {
-      margin-top: 8px;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--accent-2);
-    }
-    .mini-note {
-      margin-top: 6px;
-      color: var(--dim);
-      font-size: 11px;
-    }
-    .section-title {
-      margin: 0 0 14px;
-      font-size: 18px;
-      letter-spacing: 0.03em;
-      color: var(--heading);
+    .hero-tag {
+      background: rgba(255, 252, 247, 0.84);
     }
     .stack {
       display: grid;
       gap: 18px;
     }
     .panel {
-      border-radius: var(--radius);
-      padding: 18px;
+      border-radius: var(--radius-lg);
+      padding: 22px;
       overflow: hidden;
     }
     .panel-head {
       display: flex;
       align-items: end;
       justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: 18px;
+      margin-bottom: 18px;
     }
     .panel-head p {
       margin: 6px 0 0;
-      color: var(--dim);
+      max-width: 380px;
+      color: var(--muted);
       font-size: 12px;
+      line-height: 1.7;
+      text-align: right;
+    }
+    .section-title {
+      margin: 0 0 4px;
+      font-size: 24px;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--heading);
     }
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
     }
     .currency-block + .currency-block {
-      margin-top: 18px;
+      margin-top: 22px;
     }
     .market-label {
-      display: inline-flex;
-      margin-bottom: 12px;
-      padding: 6px 10px;
-      border: 1px solid var(--line-strong);
-      background: rgba(94, 90, 219, 0.06);
-      color: var(--accent-2);
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      margin-bottom: 14px;
+      border-color: rgba(15, 159, 114, 0.14);
+      background: rgba(15, 159, 114, 0.08);
+      color: var(--brand);
     }
     .card {
       position: relative;
       overflow: hidden;
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      min-height: 96px;
+      min-height: 128px;
+      border-radius: var(--radius-md);
+      padding: 18px;
+    }
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 18px;
+      right: 18px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(19, 34, 56, 0.14);
     }
     .card::after {
       content: "";
       position: absolute;
-      inset: auto -24px -48px auto;
-      width: 120px;
-      height: 120px;
+      inset: auto -38px -68px auto;
+      width: 160px;
+      height: 160px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.26), transparent 70%);
-      filter: blur(10px);
-    }
-    .card:hover,
-    .mini-stat:hover,
-    .panel:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 36px rgba(30, 35, 41, 0.08);
-      border-color: var(--line-strong);
-    }
-    .card.green {
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 249, 252, 0.98)),
-        linear-gradient(135deg, rgba(15, 159, 114, 0.12), rgba(94, 90, 219, 0.04));
-      border-color: rgba(15, 159, 114, 0.18);
-      box-shadow: 0 10px 24px rgba(30, 35, 41, 0.05);
-    }
-    .card.red {
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 249, 252, 0.98)),
-        linear-gradient(135deg, rgba(216, 63, 86, 0.10), rgba(112, 66, 20, 0.04));
-      border-color: rgba(216, 63, 86, 0.18);
-      box-shadow: 0 10px 24px rgba(30, 35, 41, 0.05);
-    }
-    .card.orange {
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(247, 249, 252, 0.98)),
-        linear-gradient(135deg, rgba(112, 66, 20, 0.10), rgba(94, 90, 219, 0.04));
-      border-color: rgba(112, 66, 20, 0.18);
-      box-shadow: 0 10px 24px rgba(30, 35, 41, 0.05);
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 70%);
+      filter: blur(12px);
     }
     .card .label {
-      margin-bottom: 12px;
-      color: var(--dim);
+      position: relative;
+      z-index: 1;
+      margin-bottom: 14px;
     }
     .card .value {
       position: relative;
       z-index: 1;
-      font-size: 22px;
-      line-height: 1.1;
-      font-weight: 700;
-      letter-spacing: -0.03em;
       color: var(--heading);
+      font-family: var(--font-numeric);
+      font-size: 28px;
+      line-height: 1.04;
+      font-weight: 800;
+      letter-spacing: -0.04em;
     }
+    .card.slate {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(249, 246, 239, 0.94)),
+        linear-gradient(135deg, rgba(19, 34, 56, 0.08), rgba(19, 34, 56, 0));
+    }
+    .card.slate::before { background: rgba(19, 34, 56, 0.18); }
+    .card.slate .value { color: var(--surface-ink); }
+    .card.brand {
+      background:
+        linear-gradient(180deg, rgba(19, 34, 56, 0.98), rgba(27, 45, 69, 0.96)),
+        linear-gradient(135deg, rgba(15, 159, 114, 0.14), rgba(255, 255, 255, 0));
+      border-color: rgba(19, 34, 56, 0.18);
+      box-shadow: 0 20px 48px rgba(19, 34, 56, 0.16);
+    }
+    .card.brand::before { background: rgba(255, 255, 255, 0.36); }
+    .card.brand .label,
+    .card.brand .value { color: #f8fafc; }
+    .card.gold {
+      background:
+        linear-gradient(180deg, rgba(255, 250, 240, 0.98), rgba(244, 228, 187, 0.98)),
+        linear-gradient(135deg, rgba(188, 122, 37, 0.22), rgba(255, 255, 255, 0));
+      border-color: rgba(188, 122, 37, 0.2);
+      box-shadow: 0 18px 42px rgba(188, 122, 37, 0.16);
+    }
+    .card.gold::before { background: rgba(188, 122, 37, 0.5); }
+    .card.gold .label { color: rgba(93, 57, 11, 0.72); }
+    .card.gold .value { color: #8d5b14; }
+    .card.teal {
+      background:
+        linear-gradient(180deg, rgba(240, 250, 248, 0.98), rgba(215, 239, 235, 0.98)),
+        linear-gradient(135deg, rgba(19, 140, 125, 0.2), rgba(255, 255, 255, 0));
+      border-color: rgba(19, 140, 125, 0.18);
+      box-shadow: 0 18px 42px rgba(19, 140, 125, 0.14);
+    }
+    .card.teal::before { background: rgba(19, 140, 125, 0.46); }
+    .card.teal .label { color: rgba(17, 86, 78, 0.72); }
+    .card.teal .value { color: #11756b; }
+    .card.amber {
+      background:
+        linear-gradient(180deg, rgba(255, 249, 239, 0.96), rgba(245, 234, 211, 0.96)),
+        linear-gradient(135deg, rgba(188, 122, 37, 0.18), rgba(255, 255, 255, 0));
+      border-color: rgba(188, 122, 37, 0.16);
+    }
+    .card.amber::before { background: rgba(188, 122, 37, 0.42); }
+    .card.amber .value { color: #9b631d; }
+    .card.green {
+      background:
+        linear-gradient(180deg, rgba(242, 250, 247, 0.96), rgba(227, 245, 236, 0.96)),
+        linear-gradient(135deg, rgba(15, 159, 114, 0.18), rgba(255, 255, 255, 0));
+      border-color: rgba(15, 159, 114, 0.18);
+    }
+    .card.green::before { background: rgba(15, 159, 114, 0.44); }
     .card.green .value { color: #0f9f72; }
-    .card.red .value { color: #bf3349; }
-    .card.orange .value { color: var(--accent); }
+    .card.red {
+      background:
+        linear-gradient(180deg, rgba(252, 243, 245, 0.96), rgba(250, 230, 235, 0.96)),
+        linear-gradient(135deg, rgba(216, 63, 86, 0.16), rgba(255, 255, 255, 0));
+      border-color: rgba(216, 63, 86, 0.18);
+    }
+    .card.red::before { background: rgba(216, 63, 86, 0.42); }
+    .card.red .value { color: #c1324a; }
     .table-shell {
-      border-radius: var(--radius);
+      border-radius: var(--radius-md);
       border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.92);
       overflow: auto;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
     }
     .detail-table {
       width: 100%;
@@ -274,51 +418,114 @@
       position: sticky;
       top: 0;
       z-index: 1;
-      background: linear-gradient(180deg, rgba(247, 249, 252, 0.98), rgba(240, 244, 249, 0.98));
-      color: var(--accent-2);
+      background: linear-gradient(180deg, rgba(249, 246, 239, 0.98), rgba(243, 238, 228, 0.98));
+      color: var(--heading);
     }
     .detail-table th,
     .detail-table td {
-      padding: 9px 9px;
+      padding: 12px 12px;
       border-bottom: 1px solid var(--line);
       text-align: right;
       white-space: nowrap;
       color: var(--soft);
     }
     .detail-table tbody tr:nth-child(even) {
-      background: rgba(82, 88, 98, 0.035);
+      background: rgba(19, 34, 56, 0.024);
     }
     .detail-table tbody tr:hover {
-      background: rgba(94, 90, 219, 0.06);
+      background: rgba(15, 159, 114, 0.06);
     }
     .detail-table th:first-child,
     .detail-table td:first-child,
     .detail-table th:nth-child(2),
     .detail-table td:nth-child(2) {
       text-align: left;
-      color: #1e293b;
+      color: var(--heading);
+    }
+    .detail-table td:first-child {
+      font-family: var(--font-numeric);
+      font-weight: 700;
+      letter-spacing: 0.02em;
     }
     .chart-block + .chart-block {
-      margin-top: 26px;
-      padding-top: 24px;
+      margin-top: 28px;
+      padding-top: 28px;
       border-top: 1px solid var(--line);
+    }
+    .chart-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 12px 0 14px;
+      flex-wrap: wrap;
     }
     .chart-switcher {
       display: none;
     }
     .chart-period-select {
-      display: none;
+      display: inline-flex;
+      position: relative;
+      width: fit-content;
+    }
+    .chart-period-select select {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--heading);
+      padding: 10px 40px 10px 14px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+    .chart-period-select::after {
+      content: "▼";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .chart-grid {
+      display: grid;
+      gap: 16px;
+    }
+    .chart-module {
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .module-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .module-title {
+      margin: 4px 0 0;
+      color: var(--heading);
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    .module-note {
+      max-width: 300px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+      text-align: right;
     }
     .chart-scroll {
       width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
-      margin-top: 12px;
+      margin-top: 8px;
       padding-bottom: 8px;
       -webkit-overflow-scrolling: touch;
-    }
-    .chart-scroll + .chart-scroll {
-      margin-top: 18px;
     }
     .allocation-scroll > div {
       min-width: 420px !important;
@@ -337,43 +544,45 @@
     .chart-scroll .svg-container {
       width: 100% !important;
       max-width: 100% !important;
-      border-radius: var(--radius);
+      border-radius: calc(var(--radius-md) - 6px);
     }
     .chart-scroll .js-plotly-plot {
       border: 1px solid var(--line);
-      box-shadow: 0 10px 26px rgba(30, 35, 41, 0.05);
+      box-shadow: var(--shadow-sm);
       overflow: hidden;
+      background: rgba(255, 252, 247, 0.88);
     }
     .chart-scroll .js-plotly-plot:hover {
-      box-shadow: 0 14px 34px rgba(30, 35, 41, 0.08);
+      box-shadow: var(--shadow-md);
     }
     .pwa-standalone .shell {
       padding-top: max(16px, env(safe-area-inset-top, 0px));
       padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
     }
     .pwa-standalone .hero {
-      padding-top: 16px;
+      padding-top: 20px;
     }
-    .pwa-standalone .chart-scroll {
-      margin-top: 8px;
-    }
-    .pwa-standalone .plotly-graph-div {
-      min-height: 520px;
-    }
-    @media (max-width: 1120px) {
+    @media (max-width: 1040px) {
+      .topbar {
+        border-radius: 28px;
+      }
     }
     @media (max-width: 840px) {
       .shell {
-        padding: 16px 12px 36px;
+        padding: 16px 12px 40px;
       }
-      .hero-grid {
-        grid-template-columns: 1fr;
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .topbar-meta {
+        justify-content: flex-start;
       }
       .hero h1 {
-        font-size: 24px;
+        font-size: 32px;
       }
-      .card .value {
-        font-size: 20px;
+      .section-title {
+        font-size: 21px;
       }
       .chart-scroll > div {
         min-width: 680px;
@@ -389,57 +598,59 @@
       .shell {
         padding: 14px 12px 32px;
       }
+      .topbar,
       .hero,
-      .panel {
+      .panel,
+      .chart-module {
         padding: 14px;
       }
       .hero h1 {
-        font-size: 20px;
-        line-height: 1.18;
+        font-size: 26px;
+        line-height: 1.02;
       }
       .hero p,
       .panel-head p,
-      .table-caption {
+      .table-caption,
+      .module-note {
         font-size: 12px;
-        line-height: 1.6;
+        line-height: 1.7;
+      }
+      .panel-head,
+      .module-head {
+        align-items: flex-start;
+        flex-direction: column;
       }
       .section-title {
-        font-size: 17px;
-        line-height: 1.25;
-      }
-      .panel-head {
-        gap: 10px;
-        margin-bottom: 12px;
+        font-size: 19px;
       }
       .cards {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
       }
       .card {
-        min-height: 84px;
-        padding: 10px 11px;
+        min-height: 104px;
       }
       .card .value,
-      .mini-value {
-        font-size: 18px;
-      }
-      .market-label {
-        padding: 5px 8px;
-        font-size: 10px;
+      .status-value {
+        font-size: 24px;
       }
       .detail-table {
         font-size: 11px;
       }
       .detail-table th,
       .detail-table td {
-        padding: 8px 7px;
+        padding: 9px 8px;
       }
-      .chart-block + .chart-block {
-        margin-top: 20px;
-        padding-top: 20px;
+      .chart-controls {
+        align-items: stretch;
+      }
+      .chart-period-select {
+        width: 100%;
+      }
+      .chart-period-select select {
+        width: 100%;
       }
       .chart-scroll {
         overflow-x: visible;
-        margin-top: 10px;
         padding-bottom: 0;
       }
       .chart-scroll > div {
@@ -452,73 +663,41 @@
         min-height: 360px;
       }
     }
-    @media (max-width: 390px) {
-      .shell {
-        padding: 12px 10px 28px;
-      }
-      .hero,
-      .panel {
-        padding: 12px;
-      }
-      .cards {
-        grid-template-columns: 1fr;
-      }
-      .hero h1 {
-        font-size: 18px;
-      }
-      .section-title {
-        font-size: 16px;
-      }
-      .plotly-graph-div {
-        min-height: 340px;
-      }
-    }
     @media (display-mode: standalone) and (max-width: 430px) {
       .app-bar {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+        gap: 10px;
         position: sticky;
         top: 0;
         z-index: 20;
         margin: 0 0 10px;
-        padding: 8px 10px 12px;
-        background: rgba(255, 255, 255, 0.88);
-        backdrop-filter: blur(14px);
+        padding: 10px 12px 12px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(255, 252, 247, 0.88);
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow-sm);
       }
       .app-bar-title {
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 15px;
+        font-weight: 800;
         color: var(--heading);
-        letter-spacing: -0.01em;
+        letter-spacing: -0.02em;
       }
       .app-bar-note {
         margin-top: 3px;
-        text-align: center;
         font-size: 11px;
         color: var(--dim);
-      }
-      .hero {
-        padding-top: 10px;
-      }
-      .hero-grid {
-        gap: 12px;
-      }
-      .hero-stats {
-        grid-template-columns: 1fr 1fr;
-      }
-      .panel-head {
-        align-items: flex-start;
-        flex-direction: column;
       }
       .chart-switcher {
         display: inline-flex;
         gap: 4px;
         padding: 4px;
         border: 1px solid var(--line);
-        background: #f2f4f8;
+        background: rgba(255, 255, 255, 0.9);
         border-radius: 999px;
-        margin: 8px 0 2px;
       }
       .chart-switcher button {
         border: 0;
@@ -531,42 +710,9 @@
         font-weight: 700;
       }
       .chart-switcher button.is-active {
-        background: #ffffff;
-        color: var(--accent-2);
-        box-shadow: 0 4px 10px rgba(30, 35, 41, 0.08);
-      }
-      .chart-period-select {
-        display: block;
-        margin: 10px 0 8px;
-      }
-      .chart-period-select select {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 120px;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 249, 252, 0.98));
-        color: var(--muted);
-        padding: 12px 38px 12px 14px;
-        font: inherit;
-        font-size: 12px;
-        font-weight: 700;
-        box-shadow: 0 6px 18px rgba(30, 35, 41, 0.06);
-      }
-      .chart-period-select {
-        position: relative;
-        width: fit-content;
-      }
-      .chart-period-select::after {
-        content: "▼";
-        position: absolute;
-        right: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;
-        color: var(--muted);
-        font-size: 11px;
+        background: var(--surface-deep);
+        color: #f8fafc;
+        box-shadow: 0 8px 18px rgba(19, 34, 56, 0.18);
       }
       .chart-scroll.is-hidden {
         display: none;
@@ -574,103 +720,105 @@
       .plotly-graph-div {
         min-height: min(48vh, 420px);
       }
-      .hero,
-      .panel {
-        padding-left: 12px;
-        padding-right: 12px;
-      }
     }
   </style>
 </head>
 <body>
   <div class="shell">
-      <div class="app-bar">
+    <div class="app-bar">
+      <div>
+        <div class="app-bar-title">股票庫存績效報表</div>
+        <div class="app-bar-note">{{ generated_at }}</div>
+      </div>
+      <div class="meta-pill">{{ overview.market_scope }}</div>
+    </div>
+
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
         <div>
-          <div class="app-bar-title">股票庫存績效報表</div>
-          <div class="app-bar-note">{{ generated_at }}</div>
+          <div class="brand-eyebrow">Stock Treasury Tracker</div>
+          <div class="brand-name">Portfolio Command Center</div>
         </div>
       </div>
-      <main class="main">
-        <section class="hero">
-          <div class="hero-grid">
+      <div class="topbar-meta">
+        <div class="meta-pill">Updated <strong>{{ generated_at }}</strong></div>
+        <div class="meta-pill">Markets <strong>{{ overview.market_scope }}</strong></div>
+        <div class="meta-pill">Holdings <strong>{{ overview.holdings_count }}</strong></div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="hero">
+        <div class="hero-grid">
+          <div class="hero-copy">
             <div>
-              <div class="eyebrow">Performance Overview</div>
+              <div class="eyebrow">Modern Finance Dashboard</div>
               <h1>股票庫存績效報表</h1>
-              <p>以明亮簡潔風整理投資組合摘要、股票明細與互動式歷史績效圖，保留市場配色規則、折線填色與 0% 穿越分段上色邏輯。</p>
+              <p>整體版面改成更接近現代 finance app 的 light dashboard 語言，強化層次、留白、資訊節奏與質感，並保留既有圖表線條顏色、市場報酬規則與互動邏輯。</p>
             </div>
-            <div class="hero-stats">
-              <div class="mini-stat">
-                <div class="mini-label">Report Scope</div>
-                <div class="mini-value">TW / US</div>
-                <div class="mini-note">支援台股與美股報酬邏輯</div>
-              </div>
-              <div class="mini-stat">
-                <div class="mini-label">Visual Mode</div>
-                <div class="mini-value">Clean & Airy</div>
-                <div class="mini-note">白底、柔和紫金 accent、簡潔展示型報表</div>
-              </div>
+            <div class="hero-tags">
+              <div class="hero-tag">Live Snapshot</div>
+              <div class="hero-tag">PWA Ready</div>
+              <div class="hero-tag">Clean Portfolio UI</div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-kicker">Portfolio Snapshot</div>
+              <h2 class="section-title">投資組合總覽</h2>
+            </div>
+            <p>用更偏產品化的 KPI 卡片節奏整理資產概況，重點數值更容易掃讀。</p>
+          </div>
+          {% for group in summary_cards %}
+          <div class="currency-block">
+            <div class="market-label">{{ group.market_label }}</div>
+            <div class="cards">
+              {% for item in group.card_items %}
+              <article class="card {{ item.tone }}" title="{{ item.label }}：{{ item.value }}">
+                <div class="label">{{ item.label }}</div>
+                <div class="value">{{ item.value }}</div>
+              </article>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
         </section>
 
-        <div class="stack">
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <div class="panel-kicker">Portfolio Snapshot</div>
-                <h2 class="section-title">投資組合總覽</h2>
-              </div>
-              <p>以明亮簡潔卡片呈現市場摘要，滑鼠移入可快速查看數值</p>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-kicker">Holdings Table</div>
+              <h2 class="section-title">股票明細</h2>
             </div>
-            {% for group in summary_cards %}
-            <div class="currency-block">
-              <div class="market-label">{{ group.market_label }}</div>
-              <div class="cards">
-                {% for item in group.card_items %}
-                <article class="card {{ item.tone }}" title="{{ item.label }}：{{ item.value }}">
-                  <div class="label">{{ item.label }}</div>
-                  <div class="value">{{ item.value }}</div>
-                </article>
-                {% endfor %}
-              </div>
-            </div>
-            {% endfor %}
-          </section>
+            <p class="table-caption">即時查看剩餘成本、持股淨值、已實現損益、未實現損益與總報酬率。</p>
+          </div>
+          {% if table_html %}
+          <div class="table-shell">
+            {{ table_html | safe }}
+          </div>
+          {% else %}
+          <p class="muted">目前沒有可顯示的股票明細。</p>
+          {% endif %}
+        </section>
 
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <div class="panel-kicker">Holdings Table</div>
-                <h2 class="section-title">股票明細</h2>
-              </div>
-              <p class="table-caption">即時成本 / 市值 / 總損益 / 總報酬率</p>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-kicker">History & Return</div>
+              <h2 class="section-title">歷史績效圖</h2>
             </div>
-            {% if table_html %}
-            <div class="table-shell">
-              {{ table_html | safe }}
-            </div>
-            {% else %}
-            <p class="muted">目前沒有可顯示的股票明細。</p>
-            {% endif %}
-          </section>
-
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <div class="panel-kicker">History & Return</div>
-                <h2 class="section-title">歷史績效圖</h2>
-              </div>
-              <p>保留折線塗色、區間報酬率與分段上色邏輯，並優化手機與展示版面</p>
-            </div>
-            {% for section in plot_sections %}
-            <div class="chart-block">
-              <div class="market-label">{{ section.market_label }}</div>
-              <div class="panel-head" style="margin-bottom: 10px;">
-                <div>
-                  <div class="panel-kicker">Performance</div>
-                  <h3 class="section-title">績效圖</h3>
-                </div>
-              </div>
+            <p>保留既有折線顏色與互動區間，外框、容器與展示節奏改成更像產品化的 finance app 模組。</p>
+          </div>
+          {% for section in plot_sections %}
+          <div class="chart-block">
+            <div class="market-label">{{ section.market_label }}</div>
+            <div class="chart-controls">
               <div class="chart-switcher" data-chart-group="{{ loop.index0 }}">
                 <button type="button" class="is-active" data-target="value">市值</button>
                 <button type="button" data-target="return">報酬率</button>
@@ -679,29 +827,52 @@
                 <select data-chart-group="{{ loop.index0 }}" aria-label="選擇時間區間">
                   <option value="1D">1D</option>
                   <option value="1W">1W</option>
-                  <option value="1M" selected>1M</option>
-                  <option value="YTD">YTD</option>
+                  <option value="1M">1M</option>
+                  <option value="YTD" selected>YTD</option>
                   <option value="1Y">1Y</option>
                   <option value="3Y">3Y</option>
                   <option value="5Y">5Y</option>
                   <option value="全部">全部</option>
                 </select>
               </label>
-              <div class="chart-scroll value-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="value">{{ section.value_chart | safe }}</div>
-              <div class="chart-scroll return-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="return">{{ section.return_chart | safe }}</div>
-              <div class="panel-head" style="margin: 18px 0 10px;">
-                <div>
-                  <div class="panel-kicker">Allocation</div>
-                  <h3 class="section-title">持股市值占比</h3>
-                </div>
-                <p>以目前各持股淨值計算占比</p>
-              </div>
-              <div class="chart-scroll allocation-scroll" data-chart-group="{{ loop.index0 }}" data-chart-kind="allocation">{{ section.allocation_chart | safe }}</div>
             </div>
-            {% endfor %}
-          </section>
-        </div>
-      </main>
+            <div class="chart-grid">
+              <section class="chart-module">
+                <div class="module-head">
+                  <div>
+                    <div class="module-kicker">Performance Curve</div>
+                    <h3 class="module-title">市值軌跡</h3>
+                  </div>
+                  <div class="module-note">延續原有折線與填色邏輯，僅調整展示容器與表面質感。</div>
+                </div>
+                <div class="chart-scroll value-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="value">{{ section.value_chart | safe }}</div>
+              </section>
+              <section class="chart-module">
+                <div class="module-head">
+                  <div>
+                    <div class="module-kicker">Period Return</div>
+                    <h3 class="module-title">區間報酬率</h3>
+                  </div>
+                  <div class="module-note">保留 0% 穿越分段上色與市場配色規則。</div>
+                </div>
+                <div class="chart-scroll return-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="return">{{ section.return_chart | safe }}</div>
+              </section>
+              <section class="chart-module">
+                <div class="module-head">
+                  <div>
+                    <div class="module-kicker">Allocation</div>
+                    <h3 class="module-title">持股市值占比</h3>
+                  </div>
+                  <div class="module-note">以目前各持股淨值計算占比，方便快速掌握集中度。</div>
+                </div>
+                <div class="chart-scroll allocation-scroll" data-chart-group="{{ loop.index0 }}" data-chart-kind="allocation">{{ section.allocation_chart | safe }}</div>
+              </section>
+            </div>
+          </div>
+          {% endfor %}
+        </section>
+      </div>
+    </main>
   </div>
   <script>
     (function () {
@@ -725,12 +896,6 @@
         { count: 1, label: "1Y", step: "year", stepmode: "backward" },
         { count: 3, label: "3Y", step: "year", stepmode: "backward" },
         { count: 5, label: "5Y", step: "year", stepmode: "backward" },
-        { step: "all", label: "全部" }
-      ];
-      const valueButtonsMobile = [
-        { count: 1, label: "1D", step: "day", stepmode: "backward" },
-        { count: 7, label: "1W", step: "day", stepmode: "backward" },
-        { count: 1, label: "1M", step: "month", stepmode: "backward" },
         { step: "all", label: "全部" }
       ];
       const chartState = new WeakMap();
@@ -783,9 +948,7 @@
         if (!baseMenu.buttons) {
           return;
         }
-        const updateMenu = mobile
-          ? []
-          : state.updatemenus;
+        const updateMenu = mobile ? [] : state.updatemenus;
 
         const update = {
           "font.size": mobile ? 11 : 13,

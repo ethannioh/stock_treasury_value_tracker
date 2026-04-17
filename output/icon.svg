@@ -1,16 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5E5ADB"/>
-      <stop offset="100%" stop-color="#704214"/>
+    <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#132238"/>
+      <stop offset="100%" stop-color="#0F9F72"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2E6C9"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="108" fill="#FFFFFF"/>
-  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
-  <path d="M120 342h272" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
-  <path d="M160 300l62-78 61 46 69-102" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="160" cy="300" r="14" fill="#FFFFFF"/>
-  <circle cx="222" cy="222" r="14" fill="#FFFFFF"/>
-  <circle cx="283" cy="268" r="14" fill="#FFFFFF"/>
-  <circle cx="352" cy="166" r="14" fill="#FFFFFF"/>
+  <rect width="512" height="512" rx="112" fill="#F7F3EC"/>
+  <rect x="28" y="28" width="456" height="456" rx="104" fill="url(#outer)"/>
+  <rect x="86" y="92" width="340" height="252" rx="44" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.16)" stroke-width="8"/>
+  <path d="M118 358h276" stroke="rgba(255,255,255,0.24)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M138 312l70-68 52 40 92-116" fill="none" stroke="url(#spark)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="138" cy="312" r="16" fill="#FFFFFF"/>
+  <circle cx="208" cy="244" r="16" fill="#F4E8C7"/>
+  <circle cx="260" cy="284" r="16" fill="#FFFFFF"/>
+  <circle cx="352" cy="168" r="16" fill="#F4E8C7"/>
 </svg>

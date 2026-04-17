@@ -20,6 +20,8 @@ try:
     )
     from src.price_fetcher import PriceFetcher
     from src.report_generator import (
+        build_allocation_figure,
+        build_report_overview,
         build_stock_summary_styler,
         build_summary_cards,
         render_html_report,
@@ -162,33 +164,42 @@ def inject_streamlit_theme() -> None:
         """
         <style>
         :root {
-            --tv-bg: #f0f0f0;
-            --tv-bg-2: #f7f7f7;
-            --tv-panel: rgba(250, 250, 250, 0.92);
-            --tv-panel-strong: rgba(255, 255, 255, 0.96);
-            --tv-text: #475569;
-            --tv-heading: #111827;
-            --tv-muted: #64748b;
-            --tv-soft: #475569;
-            --tv-dim: #94a3b8;
-            --tv-line: rgba(82, 88, 98, 0.14);
-            --tv-line-strong: rgba(82, 88, 98, 0.24);
-            --tv-blue: #1f7bd8;
+            --tv-bg: #f7f3ec;
+            --tv-bg-soft: #fffcf7;
+            --tv-bg-tint: #eef4ef;
+            --tv-panel: rgba(255, 255, 255, 0.76);
+            --tv-panel-strong: rgba(255, 252, 247, 0.9);
+            --tv-panel-deep: #132238;
+            --tv-panel-ink: #1b2d45;
+            --tv-text: #344054;
+            --tv-heading: #102038;
+            --tv-muted: #667085;
+            --tv-soft: #344054;
+            --tv-dim: #8b95a7;
+            --tv-line: rgba(19, 34, 56, 0.08);
+            --tv-line-strong: rgba(19, 34, 56, 0.14);
             --tv-green: #0f9f72;
             --tv-red: #d83f56;
-            --tv-orange: #f97316;
-            --tv-accent: #2563eb;
-            --tv-accent-warm: #f97316;
+            --tv-amber: #bc7a25;
+            --tv-shadow-lg: 0 28px 70px rgba(15, 23, 42, 0.08);
+            --tv-shadow-md: 0 18px 44px rgba(15, 23, 42, 0.06);
+            --tv-shadow-sm: 0 10px 26px rgba(15, 23, 42, 0.05);
+            --tv-radius-xl: 30px;
+            --tv-radius-lg: 24px;
+            --tv-radius-md: 20px;
+            --tv-radius-sm: 16px;
+            --tv-font-sans: "Aptos", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+            --tv-font-numeric: "Bahnschrift", "Aptos", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
         }
-        html, body, [class*="css"]  {
-            font-family: Consolas, "Microsoft JhengHei", "Segoe UI", sans-serif;
+        html, body, [class*="css"] {
+            font-family: var(--tv-font-sans);
             font-size: 13px;
         }
         .stApp {
             background:
-                radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 28%),
-                radial-gradient(circle at top right, rgba(31, 123, 216, 0.055), transparent 34%),
-                linear-gradient(180deg, #f7f7f7 0%, var(--tv-bg) 100%);
+                radial-gradient(circle at top left, rgba(19, 34, 56, 0.08), transparent 28%),
+                radial-gradient(circle at top right, rgba(15, 159, 114, 0.12), transparent 24%),
+                linear-gradient(180deg, var(--tv-bg-soft) 0%, var(--tv-bg) 54%, #f3efe7 100%);
             color: var(--tv-soft);
         }
         .stApp::before {
@@ -197,146 +208,318 @@ def inject_streamlit_theme() -> None:
             inset: 0;
             pointer-events: none;
             background-image:
-                linear-gradient(rgba(82, 88, 98, 0.035) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(82, 88, 98, 0.035) 1px, transparent 1px);
-            background-size: 32px 32px;
-            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.58), transparent);
+                linear-gradient(rgba(19, 34, 56, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(19, 34, 56, 0.028) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent);
+            opacity: 0.48;
         }
         .block-container {
-            padding-top: 1.25rem;
+            padding-top: 1rem;
             padding-bottom: 3rem;
-            max-width: 1440px;
+            max-width: 1480px;
         }
         h1, h2, h3 {
             color: var(--tv-heading) !important;
         }
-        p, label, .stCaption, .stMarkdown, .stTextInput label, .stNumberInput label {
+        p, label, .stCaption, .stMarkdown, .stTextInput label, .stNumberInput label, .stTextInput label p {
             color: var(--tv-soft) !important;
         }
-        .stMarkdown strong {
-            color: var(--tv-accent-warm);
+        .tv-topbar,
+        .tv-hero,
+        .tv-panel,
+        .tv-kpi-card,
+        .tv-rail-card {
+            border: 1px solid var(--tv-line);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, var(--tv-panel) 100%);
+            backdrop-filter: blur(18px);
+            box-shadow: var(--tv-shadow-md);
+        }
+        .tv-topbar:hover,
+        .tv-hero:hover,
+        .tv-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--tv-shadow-lg);
+            border-color: var(--tv-line-strong);
+        }
+        .tv-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.9rem;
+            padding: 0.85rem 1.1rem;
+            border-radius: 999px;
+        }
+        .tv-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .tv-brand-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background:
+                radial-gradient(circle at 25% 22%, rgba(255, 255, 255, 0.72), transparent 28%),
+                linear-gradient(135deg, var(--tv-panel-deep) 0%, var(--tv-green) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+            flex: 0 0 auto;
+        }
+        .tv-brand-eyebrow,
+        .tv-eyebrow,
+        .tv-section-kicker,
+        .tv-kpi-label,
+        .tv-mini-label {
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-size: 10px;
+            color: var(--tv-dim) !important;
+        }
+        .tv-brand-title {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--tv-heading) !important;
+        }
+        .tv-topbar-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            justify-content: flex-end;
+        }
+        .tv-pill,
+        .tv-chip,
+        .tv-market-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.55rem 0.85rem;
+            border-radius: 999px;
+            border: 1px solid var(--tv-line);
+            background: rgba(255, 255, 255, 0.76);
+            color: var(--tv-soft) !important;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: var(--tv-shadow-sm);
+        }
+        .tv-pill strong {
+            color: var(--tv-heading);
+            font-family: var(--tv-font-numeric);
+            letter-spacing: 0;
         }
         .tv-hero {
             position: relative;
             overflow: hidden;
             margin-bottom: 1.2rem;
-            padding: 1.25rem 1.35rem;
-            border-radius: 0;
-            border: 1px solid var(--tv-line);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, var(--tv-panel) 100%);
-            box-shadow: 0 22px 52px rgba(82, 88, 98, 0.12);
+            padding: 1.5rem;
+            border-radius: var(--tv-radius-xl);
+        }
+        .tv-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 82% 22%, rgba(15, 159, 114, 0.18), transparent 24%),
+                radial-gradient(circle at 14% 16%, rgba(19, 34, 56, 0.1), transparent 30%);
+            pointer-events: none;
         }
         .tv-hero::after {
             content: "";
             position: absolute;
-            inset: auto -20px -70px auto;
-            width: 220px;
-            height: 220px;
+            inset: auto -32px -92px auto;
+            width: 240px;
+            height: 240px;
             border-radius: 0;
-            background: radial-gradient(circle, rgba(31, 123, 216, 0.12), transparent 68%);
-            filter: blur(14px);
+            background: radial-gradient(circle, rgba(188, 122, 37, 0.16), transparent 68%);
+            filter: blur(18px);
         }
-        .tv-eyebrow,
-        .tv-section-kicker,
-        .tv-kpi-label {
-            text-transform: uppercase;
-            letter-spacing: 0.18em;
-            font-size: 10px;
+        .tv-hero-grid {
+            position: relative;
+            z-index: 1;
+            display: block;
         }
-        .tv-eyebrow,
-        .tv-section-kicker {
-            color: var(--tv-dim) !important;
+        .tv-hero-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
         .tv-hero h1 {
             margin: 0.45rem 0 0.45rem;
-            font-size: 1.75rem;
-            line-height: 1.08;
-            letter-spacing: 0.02em;
+            font-size: 2.4rem;
+            line-height: 0.98;
+            letter-spacing: -0.04em;
             color: var(--tv-heading) !important;
         }
         .tv-hero p {
             position: relative;
             z-index: 1;
             margin: 0;
-            max-width: 880px;
+            max-width: 820px;
             color: var(--tv-muted) !important;
-            line-height: 1.6;
-            font-size: 0.88rem;
+            line-height: 1.75;
+            font-size: 0.9rem;
+        }
+        .tv-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+        }
+        .tv-chip {
+            background: rgba(255, 252, 247, 0.84);
         }
         .tv-panel {
             margin: 0.85rem 0 1rem;
-            padding: 1rem;
-            border-radius: 0;
-            border: 1px solid var(--tv-line);
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, var(--tv-panel) 100%);
-            box-shadow: 0 18px 42px rgba(82, 88, 98, 0.1);
+            padding: 1.15rem;
+            border-radius: var(--tv-radius-lg);
         }
-        .tv-panel p {
-            color: var(--tv-dim) !important;
+        .tv-panel-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .tv-panel-head p,
+        .tv-section-copy {
+            margin: 0;
+            max-width: 26rem;
+            color: var(--tv-muted) !important;
+            font-size: 0.78rem;
+            line-height: 1.7;
+            text-align: right;
+        }
+        .tv-section-title {
+            margin: 0.25rem 0 0;
+            font-size: 1.6rem;
+            line-height: 1.06;
+            letter-spacing: -0.03em;
+            color: var(--tv-heading) !important;
         }
         .tv-card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 10px;
-            margin: 8px 0 16px;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 0.85rem;
+            margin: 0.7rem 0 1rem;
+        }
+        .tv-market-pill {
+            margin-bottom: 0.85rem;
+            border-color: rgba(15, 159, 114, 0.14);
+            background: rgba(15, 159, 114, 0.08);
+            color: var(--tv-panel-deep) !important;
         }
         .tv-kpi-card {
             position: relative;
             overflow: hidden;
-            border-radius: 0;
-            padding: 12px 14px;
-            min-height: 96px;
-            border: 1px solid var(--tv-line);
-            box-shadow: 0 16px 36px rgba(82, 88, 98, 0.1);
+            border-radius: var(--tv-radius-md);
+            padding: 1rem 1.05rem;
+            min-height: 118px;
             color: var(--tv-soft);
+        }
+        .tv-kpi-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 1rem;
+            right: 1rem;
+            height: 3px;
+            border-radius: 999px;
+            background: rgba(19, 34, 56, 0.16);
         }
         .tv-kpi-card::after {
             content: "";
             position: absolute;
-            inset: auto -24px -48px auto;
-            width: 120px;
-            height: 120px;
+            inset: auto -32px -62px auto;
+            width: 150px;
+            height: 150px;
             border-radius: 0;
-            background: radial-gradient(circle, rgba(255,255,255,0.52), transparent 70%);
-            filter: blur(10px);
+            background: radial-gradient(circle, rgba(255,255,255,0.4), transparent 70%);
+            filter: blur(12px);
         }
+        .tv-kpi-card.slate {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(249, 246, 239, 0.94)),
+                linear-gradient(135deg, rgba(19, 34, 56, 0.08), rgba(19, 34, 56, 0));
+        }
+        .tv-kpi-card.slate::before { background: rgba(19, 34, 56, 0.18); }
+        .tv-kpi-card.slate .tv-kpi-value { color: var(--tv-panel-ink); }
+        .tv-kpi-card.brand {
+            background:
+                linear-gradient(180deg, rgba(19, 34, 56, 0.98), rgba(27, 45, 69, 0.96)),
+                linear-gradient(135deg, rgba(15, 159, 114, 0.14), rgba(255, 255, 255, 0));
+            border-color: rgba(19, 34, 56, 0.18);
+            box-shadow: 0 20px 48px rgba(19, 34, 56, 0.16);
+        }
+        .tv-kpi-card.brand::before { background: rgba(255, 255, 255, 0.36); }
+        .tv-kpi-card.brand .tv-kpi-label,
+        .tv-kpi-card.brand .tv-kpi-value { color: #f8fafc !important; }
+        .tv-kpi-card.gold {
+            background:
+                linear-gradient(180deg, rgba(255, 250, 240, 0.98), rgba(244, 228, 187, 0.98)),
+                linear-gradient(135deg, rgba(188, 122, 37, 0.22), rgba(255, 255, 255, 0));
+            border-color: rgba(188, 122, 37, 0.2);
+            box-shadow: 0 18px 42px rgba(188, 122, 37, 0.16);
+        }
+        .tv-kpi-card.gold::before { background: rgba(188, 122, 37, 0.5); }
+        .tv-kpi-card.gold .tv-kpi-label { color: rgba(93, 57, 11, 0.72) !important; }
+        .tv-kpi-card.gold .tv-kpi-value { color: #8d5b14; }
+        .tv-kpi-card.teal {
+            background:
+                linear-gradient(180deg, rgba(240, 250, 248, 0.98), rgba(215, 239, 235, 0.98)),
+                linear-gradient(135deg, rgba(19, 140, 125, 0.2), rgba(255, 255, 255, 0));
+            border-color: rgba(19, 140, 125, 0.18);
+            box-shadow: 0 18px 42px rgba(19, 140, 125, 0.14);
+        }
+        .tv-kpi-card.teal::before { background: rgba(19, 140, 125, 0.46); }
+        .tv-kpi-card.teal .tv-kpi-label { color: rgba(17, 86, 78, 0.72) !important; }
+        .tv-kpi-card.teal .tv-kpi-value { color: #11756b; }
+        .tv-kpi-card.amber {
+            background:
+                linear-gradient(180deg, rgba(255, 249, 239, 0.96), rgba(245, 234, 211, 0.96)),
+                linear-gradient(135deg, rgba(188, 122, 37, 0.18), rgba(255, 255, 255, 0));
+            border-color: rgba(188, 122, 37, 0.16);
+        }
+        .tv-kpi-card.amber::before { background: rgba(188, 122, 37, 0.42); }
+        .tv-kpi-card.amber .tv-kpi-value { color: #9b631d; }
         .tv-kpi-card.green {
             background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 250, 250, 0.95)),
-                linear-gradient(135deg, rgba(15, 159, 114, 0.2), rgba(31, 123, 216, 0.1));
-            border-color: rgba(15, 159, 114, 0.28);
+                linear-gradient(180deg, rgba(242, 250, 247, 0.96), rgba(227, 245, 236, 0.96)),
+                linear-gradient(135deg, rgba(15, 159, 114, 0.18), rgba(255, 255, 255, 0));
+            border-color: rgba(15, 159, 114, 0.18);
         }
+        .tv-kpi-card.green::before { background: rgba(15, 159, 114, 0.44); }
         .tv-kpi-card.red {
             background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 248, 249, 0.95)),
-                linear-gradient(135deg, rgba(216, 63, 86, 0.18), rgba(249, 115, 22, 0.1));
-            border-color: rgba(216, 63, 86, 0.28);
+                linear-gradient(180deg, rgba(252, 243, 245, 0.96), rgba(250, 230, 235, 0.96)),
+                linear-gradient(135deg, rgba(216, 63, 86, 0.16), rgba(255, 255, 255, 0));
+            border-color: rgba(216, 63, 86, 0.18);
         }
-        .tv-kpi-card.orange {
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(251, 249, 245, 0.95)),
-                linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(37, 99, 235, 0.08));
-            border-color: rgba(249, 115, 22, 0.28);
-        }
+        .tv-kpi-card.red::before { background: rgba(216, 63, 86, 0.42); }
         .tv-kpi-label {
+            position: relative;
+            z-index: 1;
             opacity: 0.92;
-            margin-bottom: 7px;
+            margin-bottom: 0.8rem;
             color: var(--tv-dim);
         }
         .tv-kpi-value {
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+            font-family: var(--tv-font-numeric);
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
             color: var(--tv-heading);
         }
         .tv-kpi-card.green .tv-kpi-value { color: #0f9f72; }
-        .tv-kpi-card.red .tv-kpi-value { color: #bf3349; }
-        .tv-kpi-card.orange .tv-kpi-value { color: #ea580c; }
+        .tv-kpi-card.red .tv-kpi-value { color: #c1324a; }
         .tv-table-wrap {
-            background: rgba(250, 250, 250, 0.88);
+            background: rgba(255, 255, 255, 0.92);
             border: 1px solid var(--tv-line);
-            border-radius: 0;
-            box-shadow: 0 14px 32px rgba(82, 88, 98, 0.09);
+            border-radius: var(--tv-radius-md);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
             overflow: auto;
         }
         .tv-table-wrap table {
@@ -344,11 +527,11 @@ def inject_streamlit_theme() -> None:
             border-collapse: collapse;
         }
         .tv-table-wrap thead th {
-            background: linear-gradient(180deg, rgba(238, 241, 245, 0.98), rgba(222, 227, 235, 0.98));
-            color: var(--tv-accent) !important;
+            background: linear-gradient(180deg, rgba(249, 246, 239, 0.98), rgba(243, 238, 228, 0.98));
+            color: var(--tv-heading) !important;
         }
         .tv-table-wrap th, .tv-table-wrap td {
-            padding: 9px 9px;
+            padding: 11px 11px;
             border-bottom: 1px solid var(--tv-line);
             white-space: nowrap;
             font-size: 12px;
@@ -356,34 +539,42 @@ def inject_streamlit_theme() -> None:
         }
         .tv-table-wrap td:first-child,
         .tv-table-wrap td:nth-child(2) {
-            color: #1e293b;
+            color: var(--tv-heading);
+        }
+        .tv-table-wrap td:first-child {
+            font-family: var(--tv-font-numeric);
+            font-weight: 700;
+            letter-spacing: 0.02em;
         }
         .tv-table-wrap tbody tr:nth-child(even) {
-            background: rgba(82, 88, 98, 0.035);
+            background: rgba(19, 34, 56, 0.024);
         }
         .tv-table-wrap tbody tr:hover {
-            background: rgba(31, 123, 216, 0.075);
+            background: rgba(15, 159, 114, 0.06);
         }
         .stButton > button {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.96) 0%, rgba(249, 115, 22, 0.9) 100%);
+            background: linear-gradient(135deg, rgba(19, 34, 56, 0.98) 0%, rgba(15, 159, 114, 0.92) 100%);
             color: #ffffff;
-            border: 1px solid rgba(37, 99, 235, 0.32);
-            border-radius: 0;
-            padding: 0.52rem 1rem;
+            border: 1px solid rgba(19, 34, 56, 0.24);
+            border-radius: 999px;
+            padding: 0.56rem 1rem;
             font-weight: 800;
-            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.18);
+            box-shadow: 0 14px 30px rgba(19, 34, 56, 0.18);
         }
         .stButton > button:hover {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.96) 0%, rgba(251, 146, 60, 0.92) 100%);
+            background: linear-gradient(135deg, rgba(28, 47, 72, 0.98) 0%, rgba(20, 176, 128, 0.92) 100%);
             color: #ffffff;
         }
         .stTextInput > div > div > input,
         .stNumberInput input {
             background: rgba(255, 255, 255, 0.92);
-            color: #1e293b;
+            color: var(--tv-heading);
             border: 1px solid var(--tv-line) !important;
-            border-radius: 0 !important;
+            border-radius: 16px !important;
             font-size: 12px;
+        }
+        div[data-baseweb="input"] {
+            border-radius: 16px;
         }
         div[data-baseweb="select"] > div,
         .stTextInput > div > div,
@@ -394,13 +585,13 @@ def inject_streamlit_theme() -> None:
             background: rgba(255, 255, 255, 0.92);
             color: var(--tv-soft);
             border: 1px solid var(--tv-line);
-            border-radius: 0;
+            border-radius: var(--tv-radius-md);
         }
         .stPlotlyChart {
-            border-radius: 0;
+            border-radius: var(--tv-radius-md);
             overflow: hidden;
             border: 1px solid var(--tv-line);
-            box-shadow: 0 14px 32px rgba(82, 88, 98, 0.09);
+            box-shadow: var(--tv-shadow-sm);
         }
         .tv-settings-grid {
             display: grid;
@@ -408,16 +599,29 @@ def inject_streamlit_theme() -> None:
             gap: 0.8rem;
         }
         @media (max-width: 768px) {
+            .tv-topbar {
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: 28px;
+            }
+            .tv-topbar-meta {
+                justify-content: flex-start;
+            }
             .tv-hero {
-                padding: 1rem;
-                border-radius: 0;
+                padding: 1.1rem;
             }
             .tv-panel {
-                padding: 0.9rem;
-                border-radius: 0;
+                padding: 1rem;
             }
             .tv-hero h1 {
-                font-size: 1.5rem;
+                font-size: 1.85rem;
+            }
+            .tv-panel-head {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .tv-panel-head p {
+                text-align: left;
             }
         }
         </style>
@@ -431,7 +635,7 @@ def render_kpi_cards(snapshot: dict[str, dict[str, float]]) -> None:
 
     for card_group in build_summary_cards(snapshot):
         st.markdown(
-            f'<div class="tv-section-kicker">Market</div><h3 style="margin:0.35rem 0 0.2rem;">{card_group["market_label"]}</h3>',
+            f'<div class="tv-market-pill">{card_group["market_label"]}</div>',
             unsafe_allow_html=True,
         )
         cards_html = "".join(
@@ -446,6 +650,48 @@ def render_kpi_cards(snapshot: dict[str, dict[str, float]]) -> None:
         st.markdown(f'<div class="tv-card-grid">{cards_html}</div>', unsafe_allow_html=True)
 
 
+def render_dashboard_hero(snapshot: dict[str, dict[str, float]], stock_summary: pd.DataFrame) -> None:
+    import streamlit as st
+
+    overview = build_report_overview(snapshot, stock_summary)
+    generated_at = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")
+    st.markdown(
+        f"""
+        <section class="tv-topbar">
+          <div class="tv-topbar-left">
+            <div class="tv-brand-mark"></div>
+            <div>
+              <div class="tv-brand-eyebrow">Stock Treasury Tracker</div>
+              <div class="tv-brand-title">Portfolio Command Center</div>
+            </div>
+          </div>
+          <div class="tv-topbar-meta">
+            <div class="tv-pill">Updated <strong>{generated_at}</strong></div>
+            <div class="tv-pill">Markets <strong>{overview["market_scope"]}</strong></div>
+            <div class="tv-pill">Holdings <strong>{overview["holdings_count"]}</strong></div>
+          </div>
+        </section>
+        <section class="tv-hero">
+          <div class="tv-hero-grid">
+            <div class="tv-hero-copy">
+              <div>
+                <div class="tv-eyebrow">Modern Finance Dashboard</div>
+                <h1>股票庫存績效追蹤工具</h1>
+                <p>整體版面改成更接近現代 finance app 的 light dashboard 語言，強化資訊層次、留白與產品感，同時保留既有圖表線條顏色與市場報酬邏輯。</p>
+              </div>
+              <div class="tv-chip-row">
+                <div class="tv-chip">Live Snapshot</div>
+                <div class="tv-chip">PWA Ready</div>
+                <div class="tv-chip">Clean Portfolio UI</div>
+              </div>
+            </div>
+          </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def run_streamlit() -> None:
     if IMPORT_ERROR is not None:
         raise RuntimeError("Application startup failed during import.") from IMPORT_ERROR
@@ -458,16 +704,6 @@ def run_streamlit() -> None:
 
     st.set_page_config(page_title="股票庫存績效追蹤工具", layout="wide")
     inject_streamlit_theme()
-    st.markdown(
-        """
-        <section class="tv-hero">
-          <div class="tv-eyebrow">Performance Overview</div>
-          <h1>股票庫存績效追蹤工具</h1>
-          <p>以明亮科技儀表板風格呈現台股與美股投資組合，保留區間報酬率、0% 穿越分段上色、以及台股紅漲綠跌 / 美股綠漲紅跌邏輯。</p>
-        </section>
-        """,
-        unsafe_allow_html=True,
-    )
 
     if "transactions_path" not in st.session_state:
         st.session_state.transactions_path = str(DATA_DIR / "transactions.csv")
@@ -502,11 +738,17 @@ def run_streamlit() -> None:
         st.error(f"載入資料或抓取股價時發生錯誤：{exc}")
         st.stop()
 
+    render_dashboard_hero(snapshot, stock_summary)
     st.markdown(
         """
         <section class="tv-panel">
-          <div class="tv-section-kicker">Portfolio Snapshot</div>
-          <h2 style="margin:0.45rem 0 0.5rem;">投資組合總覽</h2>
+          <div class="tv-panel-head">
+            <div>
+              <div class="tv-section-kicker">Portfolio Snapshot</div>
+              <h2 class="tv-section-title">投資組合總覽</h2>
+            </div>
+            <p class="tv-section-copy">用更偏產品化的 KPI 卡片節奏整理資產概況，重點數值更容易掃讀。</p>
+          </div>
         </section>
         """,
         unsafe_allow_html=True,
@@ -516,9 +758,13 @@ def run_streamlit() -> None:
     st.markdown(
         """
         <section class="tv-panel">
-          <div class="tv-section-kicker">Holdings Table</div>
-          <h2 style="margin:0.45rem 0 0.5rem;">股票明細</h2>
-          <p style="margin:0;">即時查看成本、市值、配息、總損益與總報酬率。</p>
+          <div class="tv-panel-head">
+            <div>
+              <div class="tv-section-kicker">Holdings Table</div>
+              <h2 class="tv-section-title">股票明細</h2>
+            </div>
+            <p class="tv-section-copy">即時查看剩餘成本、持股淨值、已實現損益、未實現損益與總報酬率。</p>
+          </div>
         </section>
         """,
         unsafe_allow_html=True,
@@ -532,27 +778,36 @@ def run_streamlit() -> None:
     st.markdown(
         """
         <section class="tv-panel">
-          <div class="tv-section-kicker">History & Return</div>
-          <h2 style="margin:0.45rem 0 0.5rem;">歷史績效圖</h2>
-          <p style="margin:0;">保留折線塗色、區間報酬率、台美股配色規則與 0% 穿越分段上色。</p>
+          <div class="tv-panel-head">
+            <div>
+              <div class="tv-section-kicker">History & Return</div>
+              <h2 class="tv-section-title">歷史績效圖</h2>
+            </div>
+            <p class="tv-section-copy">保留既有折線顏色與互動區間，外框、容器與展示節奏改成更像產品化的 finance app 模組。</p>
+          </div>
         </section>
         """,
         unsafe_allow_html=True,
     )
     for currency, figure_set in figures.items():
         st.markdown(
-            f'<div class="tv-section-kicker">Market</div><h3 style="margin:0.35rem 0 0.75rem;">{market_label_from_currency(currency)}</h3>',
+            f'<div class="tv-market-pill">{market_label_from_currency(currency)}</div>',
             unsafe_allow_html=True,
         )
         st.plotly_chart(figure_set["value"], use_container_width=True)
         st.plotly_chart(figure_set["return"], use_container_width=True)
+        st.plotly_chart(build_allocation_figure(stock_summary, currency), use_container_width=True)
 
     st.markdown(
         """
         <section class="tv-panel">
-          <div class="tv-section-kicker">Settings</div>
-          <h2 style="margin:0.45rem 0 0.5rem;">設定</h2>
-          <p style="margin:0;">設定區已移到頁面底部，調整後 Streamlit 會自動重新載入資料。</p>
+          <div class="tv-panel-head">
+            <div>
+              <div class="tv-section-kicker">Settings</div>
+              <h2 class="tv-section-title">設定</h2>
+            </div>
+            <p class="tv-section-copy">設定區維持在底部，方便把這頁當成主要觀看儀表板。</p>
+          </div>
         </section>
         """,
         unsafe_allow_html=True,

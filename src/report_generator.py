@@ -15,23 +15,29 @@ from .utils import format_compact_number, format_percent, pnl_css, return_css, r
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 PWA_APP_NAME = "Stock Treasury Tracker"
 PWA_SHORT_NAME = "Treasury"
-PWA_THEME_COLOR = "#5E5ADB"
-PWA_BG_COLOR = "#FFFFFF"
+PWA_THEME_COLOR = "#132238"
+PWA_BG_COLOR = "#F7F3EC"
+CHART_FONT_FAMILY = "'Aptos', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
 PWA_ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#5E5ADB"/>
-      <stop offset="100%" stop-color="#704214"/>
+    <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#132238"/>
+      <stop offset="100%" stop-color="#0F9F72"/>
+    </linearGradient>
+    <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F2E6C9"/>
+      <stop offset="100%" stop-color="#FFFFFF"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="108" fill="#FFFFFF"/>
-  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
-  <path d="M120 342h272" stroke="#FFFFFF" stroke-width="20" stroke-linecap="round"/>
-  <path d="M160 300l62-78 61 46 69-102" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="160" cy="300" r="14" fill="#FFFFFF"/>
-  <circle cx="222" cy="222" r="14" fill="#FFFFFF"/>
-  <circle cx="283" cy="268" r="14" fill="#FFFFFF"/>
-  <circle cx="352" cy="166" r="14" fill="#FFFFFF"/>
+  <rect width="512" height="512" rx="112" fill="#F7F3EC"/>
+  <rect x="28" y="28" width="456" height="456" rx="104" fill="url(#outer)"/>
+  <rect x="86" y="92" width="340" height="252" rx="44" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.16)" stroke-width="8"/>
+  <path d="M118 358h276" stroke="rgba(255,255,255,0.24)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M138 312l70-68 52 40 92-116" fill="none" stroke="url(#spark)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="138" cy="312" r="16" fill="#FFFFFF"/>
+  <circle cx="208" cy="244" r="16" fill="#F4E8C7"/>
+  <circle cx="260" cy="284" r="16" fill="#FFFFFF"/>
+  <circle cx="352" cy="168" r="16" fill="#F4E8C7"/>
 </svg>"""
 
 SUMMARY_LABELS = {
@@ -105,10 +111,14 @@ def build_summary_cards(snapshot: dict[str, dict[str, float]]) -> list[dict[str,
         card_items: list[dict[str, str]] = []
         for key in ["total_cost", "total_market_value", "total_dividends", "total_pnl", "total_return_pct"]:
             value = metrics[key]
-            if key in {"total_cost", "total_market_value"}:
-                tone = "green"
+            if key == "total_cost":
+                tone = "slate"
+            elif key == "total_market_value":
+                tone = "gold"
             elif key == "total_dividends":
-                tone = "orange"
+                tone = "teal"
+            elif key == "total_pnl":
+                tone = return_tone(value, currency)
             elif key == "total_return_pct":
                 tone = return_tone(value, currency)
             else:
@@ -125,6 +135,25 @@ def build_summary_cards(snapshot: dict[str, dict[str, float]]) -> list[dict[str,
         cards.append({"currency": currency, "market_label": market_label_from_currency(currency), "card_items": card_items})
 
     return cards
+
+
+def build_report_overview(snapshot: dict[str, dict[str, float]], stock_summary: pd.DataFrame) -> dict[str, str | int]:
+    market_tokens: list[str] = []
+    for currency in sorted(snapshot.keys(), key=_currency_sort_key):
+        normalized = str(currency).upper()
+        if normalized == "TWD":
+            market_tokens.append("TW")
+        elif normalized == "USD":
+            market_tokens.append("US")
+        else:
+            market_tokens.append(normalized)
+
+    holdings_count = 0 if stock_summary is None or stock_summary.empty else int(len(stock_summary.index))
+    return {
+        "market_scope": " / ".join(market_tokens) if market_tokens else "Portfolio",
+        "holdings_count": holdings_count,
+        "market_count": len(market_tokens),
+    }
 
 
 def _row_styles(row: pd.Series) -> list[str]:
@@ -177,16 +206,16 @@ def build_stock_summary_styler(stock_summary: pd.DataFrame) -> pd.io.formats.sty
     return styler
 
 
-def _build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Figure:
+def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Figure:
     group = stock_summary[stock_summary["currency"] == currency].copy()
     fig = go.Figure()
 
     if group.empty:
         fig.update_layout(
             title="持股市值占比",
-            paper_bgcolor="#FFFFFF",
-            plot_bgcolor="#F7F9FC",
-            font=dict(color="#1E2329", family="Inter, Roboto, 'SF Pro Text', 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif"),
+            paper_bgcolor="#FFFCF7",
+            plot_bgcolor="#F4F1EA",
+            font=dict(color="#162235", family=CHART_FONT_FAMILY),
             margin=dict(l=24, r=24, t=72, b=24),
             annotations=[
                 dict(
@@ -194,7 +223,7 @@ def _build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.F
                     x=0.5,
                     y=0.5,
                     showarrow=False,
-                    font=dict(size=16, color="#677281"),
+                    font=dict(size=16, color="#667085"),
                 )
             ],
         )
@@ -223,9 +252,9 @@ def _build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.F
     )
     fig.update_layout(
         title="持股市值占比",
-        paper_bgcolor="#FFFFFF",
-        plot_bgcolor="#F7F9FC",
-        font=dict(color="#1E2329", family="Inter, Roboto, 'SF Pro Text', 'Helvetica Neue', Arial, 'Microsoft JhengHei', sans-serif"),
+        paper_bgcolor="#FFFCF7",
+        plot_bgcolor="#F4F1EA",
+        font=dict(color="#162235", family=CHART_FONT_FAMILY),
         margin=dict(l=24, r=24, t=72, b=24),
         legend=dict(
             orientation="h",
@@ -233,10 +262,10 @@ def _build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.F
             y=-0.08,
             xanchor="left",
             yanchor="top",
-            bgcolor="rgba(255, 255, 255, 0.96)",
-            bordercolor="rgba(30, 35, 41, 0.10)",
+            bgcolor="rgba(255, 252, 247, 0.96)",
+            bordercolor="rgba(22, 34, 56, 0.10)",
             borderwidth=1,
-            font=dict(color="#677281"),
+            font=dict(color="#667085"),
         ),
     )
     fig.add_annotation(
@@ -244,7 +273,7 @@ def _build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.F
         x=0.5,
         y=0.5,
         showarrow=False,
-        font=dict(size=15, color="#1E2329"),
+        font=dict(size=15, color="#162235"),
     )
     return fig
 
@@ -271,7 +300,7 @@ def render_html_report(
     include_plotlyjs = True
     for currency in currency_order:
         figure_set = figures[currency]
-        allocation_figure = _build_allocation_figure(stock_summary, currency)
+        allocation_figure = build_allocation_figure(stock_summary, currency)
         plot_sections.append(
             {
                 "currency": currency,
@@ -309,6 +338,7 @@ def render_html_report(
 
     return template.render(
         generated_at=generated_at.strftime("%Y-%m-%d %H:%M:%S"),
+        overview=build_report_overview(snapshot, stock_summary),
         summary_cards=build_summary_cards(snapshot),
         table_html=table_html,
         plot_sections=plot_sections,
@@ -353,7 +383,7 @@ def render_pwa_manifest() -> str:
 
 
 def render_service_worker() -> str:
-    return """const CACHE_NAME = "stock-treasury-pwa-v1";
+    return """const CACHE_NAME = "stock-treasury-pwa-v2";
 const ASSETS = ["./", "./report.json", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
