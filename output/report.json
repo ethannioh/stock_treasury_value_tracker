@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-04-17T11:15:51.338783",
+  "generated_at": "2026-04-18T06:49:44.668344",
   "reference_ticker_twd": "0050.TW",
   "summary": {
     "USD": {
       "total_cost": 5119.4,
-      "total_market_value": 6337.330169677734,
+      "total_market_value": 6407.519958496094,
       "total_dividends": 0.0,
-      "total_pnl": 1217.9301696777347,
-      "total_return_pct": 0.2379048657416367
+      "total_pnl": 1288.1199584960941,
+      "total_return_pct": 0.2516154155752811
     },
     "TWD": {
       "total_cost": 5408660.3737,
@@ -92,16 +92,16 @@
       "currency": "USD",
       "shares": 8.0,
       "avg_cost": 412.3,
-      "last_price": 420.260009765625,
+      "last_price": 422.7900085449219,
       "total_cost": 3298.4,
       "gross_buy_outlay": 3298.4,
-      "market_value": 3362.080078125,
+      "market_value": 3382.320068359375,
       "realized_pnl": 0.0,
-      "unrealized_pnl": 63.68007812499991,
-      "unrealized_return_pct": 0.019306354027710377,
+      "unrealized_pnl": 83.92006835937491,
+      "unrealized_return_pct": 0.025442659580213106,
       "dividends": 0.0,
-      "total_pnl": 63.68007812499991,
-      "total_return_pct": 0.019306354027710377
+      "total_pnl": 83.92006835937491,
+      "total_return_pct": 0.025442659580213106
     },
     {
       "ticker": "NVDA",
@@ -109,16 +109,16 @@
       "currency": "USD",
       "shares": 15.0,
       "avg_cost": 121.4,
-      "last_price": 198.35000610351562,
+      "last_price": 201.67999267578125,
       "total_cost": 1821.0,
       "gross_buy_outlay": 1821.0,
-      "market_value": 2975.2500915527344,
+      "market_value": 3025.1998901367188,
       "realized_pnl": 0.0,
-      "unrealized_pnl": 1154.2500915527344,
-      "unrealized_return_pct": 0.6338550749877728,
+      "unrealized_pnl": 1204.1998901367188,
+      "unrealized_return_pct": 0.6612849479059411,
       "dividends": 0.0,
-      "total_pnl": 1154.2500915527344,
-      "total_return_pct": 0.6338550749877728
+      "total_pnl": 1204.1998901367188,
+      "total_return_pct": 0.6612849479059411
     }
   ]
 }
