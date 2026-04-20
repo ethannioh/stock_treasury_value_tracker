@@ -624,6 +624,17 @@ def inject_streamlit_theme() -> None:
                 text-align: left;
             }
         }
+        @media (max-width: 430px) {
+            .tv-card-grid {
+                grid-template-columns: repeat(4, minmax(148px, 1fr));
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding-bottom: 0.25rem;
+            }
+            .tv-kpi-card {
+                min-height: 100px;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -677,7 +688,6 @@ def render_dashboard_hero(snapshot: dict[str, dict[str, float]], stock_summary: 
               <div>
                 <div class="tv-eyebrow">Modern Finance Dashboard</div>
                 <h1>股票庫存績效追蹤工具</h1>
-                <p>整體版面改成更接近現代 finance app 的 light dashboard 語言，強化資訊層次、留白與產品感，同時保留既有圖表線條顏色與市場報酬邏輯。</p>
               </div>
               <div class="tv-chip-row">
                 <div class="tv-chip">Live Snapshot</div>
@@ -747,7 +757,6 @@ def run_streamlit() -> None:
               <div class="tv-section-kicker">Portfolio Snapshot</div>
               <h2 class="tv-section-title">投資組合總覽</h2>
             </div>
-            <p class="tv-section-copy">用更偏產品化的 KPI 卡片節奏整理資產概況，重點數值更容易掃讀。</p>
           </div>
         </section>
         """,

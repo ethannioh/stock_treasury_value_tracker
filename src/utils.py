@@ -41,6 +41,20 @@ def normalize_ticker(ticker: str) -> str:
     return str(ticker).strip().upper()
 
 
+def display_ticker(ticker: str) -> str:
+    normalized = normalize_ticker(ticker)
+    for suffix in (".TW", ".TWO"):
+        if normalized.endswith(suffix):
+            return normalized[: -len(suffix)]
+    return normalized
+
+
+def display_security_label(ticker: str, name: str | None = None) -> str:
+    code = display_ticker(ticker)
+    title = str(name or "").strip()
+    return f"{code} {title}" if title else code
+
+
 def first_index_on_or_after(index: pd.DatetimeIndex, target: pd.Timestamp) -> pd.Timestamp | None:
     pos = index.searchsorted(target)
     if pos >= len(index):

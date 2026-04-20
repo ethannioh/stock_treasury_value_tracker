@@ -9,7 +9,7 @@ import plotly.io as pio
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from .performance import market_label_from_currency
-from .utils import format_compact_number, format_percent, pnl_css, return_css, return_tone
+from .utils import display_security_label, display_ticker, format_compact_number, format_percent, pnl_css, return_css, return_tone
 
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
@@ -109,14 +109,12 @@ def build_summary_cards(snapshot: dict[str, dict[str, float]]) -> list[dict[str,
 
     for currency, metrics in sorted(snapshot.items(), key=lambda item: _currency_sort_key(item[0])):
         card_items: list[dict[str, str]] = []
-        for key in ["total_cost", "total_market_value", "total_dividends", "total_pnl", "total_return_pct"]:
+        for key in ["total_cost", "total_market_value", "total_pnl", "total_return_pct"]:
             value = metrics[key]
             if key == "total_cost":
                 tone = "slate"
             elif key == "total_market_value":
                 tone = "gold"
-            elif key == "total_dividends":
-                tone = "teal"
             elif key == "total_pnl":
                 tone = return_tone(value, currency)
             elif key == "total_return_pct":
@@ -177,6 +175,8 @@ def build_stock_summary_styler(stock_summary: pd.DataFrame) -> pd.io.formats.sty
         return None
 
     display_table = stock_summary.rename(columns=TABLE_COLUMNS).copy()
+    if "Ticker" in display_table.columns:
+        display_table["Ticker"] = display_table["Ticker"].map(display_ticker)
     ordered_columns = [column for column in VISIBLE_TABLE_COLUMNS if column in display_table.columns]
     if "幣別" in display_table.columns:
         ordered_columns.append("幣別")
@@ -230,21 +230,24 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
         return fig
 
     group = group.sort_values("market_value", ascending=False, ignore_index=True)
+    group["display_ticker"] = group["ticker"].map(display_ticker)
+    group["display_label"] = group.apply(lambda row: display_security_label(row["ticker"], row.get("name", "")), axis=1)
     total_value = float(group["market_value"].sum())
     hover_text = [
         f"{name}<br>淨值: {format_compact_number(value)}<br>占比: {format_percent(value / total_value if total_value else 0)}"
-        for name, value in zip(group["ticker"], group["market_value"])
+        for name, value in zip(group["display_label"], group["market_value"])
     ]
 
     fig.add_trace(
         go.Pie(
-            labels=group["ticker"],
+            labels=group["display_label"],
             values=group["market_value"],
             hole=0.42,
             sort=False,
             direction="clockwise",
             marker=dict(colors=PIE_COLORS, line=dict(color="#FFFFFF", width=2)),
-            textinfo="label+percent",
+            text=group["display_ticker"],
+            textinfo="text+percent",
             textposition="outside",
             customdata=hover_text,
             hovertemplate="%{customdata}<extra></extra>",

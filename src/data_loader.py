@@ -26,6 +26,7 @@ LEGACY_TRANSACTION_COLUMNS = [
 TRANSACTION_COLUMNS = [
     "trade_date",
     "ticker",
+    "name",
     "side",
     "price",
     "quantity",
@@ -51,16 +52,18 @@ RATE_CONFIG_COLUMNS = [
     "tax",
 ]
 
+CSV_ENCODINGS = ["utf-8", "utf-8-sig", "cp950", "big5"]
 
-SAMPLE_TRANSACTIONS = """trade_date,ticker,side,price,quantity,fee,tax,account,currency,note
-2024-01-15,2330.TW,buy,585,1000,0.001425,0,broker1,TWD,first buy
-2024-09-20,2330.TW,buy,910,500,0.001425,0,broker1,TWD,add on weakness
-2025-03-18,2330.TW,sell,980,300,0.001425,0.003,broker1,TWD,trim position
-2024-02-05,0050.TW,buy,145.2,2000,0.001425,0,broker1,TWD,core ETF
-2024-03-01,AAPL,buy,182.5,10,0,0,broker2,USD,long term
-2025-02-14,AAPL,sell,210.4,4,0,0,broker2,USD,rebalance
-2024-04-18,MSFT,buy,412.3,8,0,0,broker2,USD,AI theme
-2024-06-10,NVDA,buy,121.4,15,0,0,broker2,USD,growth
+
+SAMPLE_TRANSACTIONS = """trade_date,ticker,name,side,price,quantity,fee,tax,account,currency,note
+2024-01-15,2330.TW,台積電,buy,585,1000,0.001425,0,broker1,TWD,first buy
+2024-09-20,2330.TW,台積電,buy,910,500,0.001425,0,broker1,TWD,add on weakness
+2025-03-18,2330.TW,台積電,sell,980,300,0.001425,0.003,broker1,TWD,trim position
+2024-02-05,0050.TW,元大台灣50,buy,145.2,2000,0.001425,0,broker1,TWD,core ETF
+2024-03-01,AAPL,Apple,buy,182.5,10,0,0,broker2,USD,long term
+2025-02-14,AAPL,Apple,sell,210.4,4,0,0,broker2,USD,rebalance
+2024-04-18,MSFT,Microsoft,buy,412.3,8,0,0,broker2,USD,AI theme
+2024-06-10,NVDA,NVIDIA,buy,121.4,15,0,0,broker2,USD,growth
 """
 
 SAMPLE_DIVIDENDS = """ticker,dividend_date,amount,currency,note
@@ -93,6 +96,20 @@ def validate_columns(df: pd.DataFrame, required_columns: list[str], filename: st
         raise ValueError(f"{filename} is missing required columns: {missing}")
 
 
+def _read_csv_with_fallback(path: Path) -> pd.DataFrame:
+    last_error: Exception | None = None
+    for encoding in CSV_ENCODINGS:
+        try:
+            return pd.read_csv(path, encoding=encoding)
+        except UnicodeDecodeError as exc:
+            last_error = exc
+    if last_error is not None:
+        raise ValueError(
+            f"unable to read CSV file {path.name}; please save it as UTF-8, UTF-8 BOM, CP950, or Big5"
+        ) from last_error
+    return pd.read_csv(path)
+
+
 def _is_legacy_transaction_format(df: pd.DataFrame) -> bool:
     return all(column in df.columns for column in LEGACY_TRANSACTION_COLUMNS)
 
@@ -111,9 +128,10 @@ def _normalize_transaction_frame(df: pd.DataFrame, filename: str) -> pd.DataFram
         ).copy()
         normalized["side"] = "buy"
         normalized["currency"] = normalized["ticker"].astype(str).map(infer_currency_from_ticker)
+        normalized["name"] = ""
     elif _is_v2_transaction_format(df):
         normalized = df.copy()
-        for column, default_value in {"fee": pd.NA, "tax": pd.NA, "account": "", "currency": "", "note": ""}.items():
+        for column, default_value in {"name": "", "fee": pd.NA, "tax": pd.NA, "account": "", "currency": "", "note": ""}.items():
             if column not in normalized.columns:
                 normalized[column] = default_value
     else:
@@ -130,7 +148,7 @@ def load_rate_config(path: Path) -> dict[tuple[str, str], dict[str, float]]:
     if not path.exists():
         raise FileNotFoundError(f"rate config file not found: {path}")
 
-    df = pd.read_csv(path)
+    df = _read_csv_with_fallback(path)
     df = df.dropna(how="all")
     validate_columns(df, RATE_CONFIG_COLUMNS, path.name)
     df = df.copy()
@@ -166,7 +184,7 @@ def load_transactions(path: Path, rate_config: dict[tuple[str, str], dict[str, f
     if not path.exists():
         raise FileNotFoundError(f"transactions file not found: {path}")
 
-    df = pd.read_csv(path)
+    df = _read_csv_with_fallback(path)
     df = df.dropna(how="all")
     df = _normalize_transaction_frame(df, path.name)
 
@@ -193,6 +211,7 @@ def load_transactions(path: Path, rate_config: dict[tuple[str, str], dict[str, f
 
     df["account"] = df["account"].fillna("").astype(str)
     df["currency"] = df["currency"].fillna("").astype(str).str.strip().str.upper()
+    df["name"] = df["name"].fillna("").astype(str).str.strip()
     df["currency"] = df.apply(
         lambda row: row["currency"] or infer_currency_from_ticker(row["ticker"]),
         axis=1,
@@ -250,7 +269,7 @@ def load_dividends(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(f"dividends file not found: {path}")
 
-    df = pd.read_csv(path)
+    df = _read_csv_with_fallback(path)
     df = df.dropna(how="all")
     validate_columns(df, DIVIDEND_COLUMNS, path.name)
     df = df.copy()

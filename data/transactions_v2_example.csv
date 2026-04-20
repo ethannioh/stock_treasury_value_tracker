@@ -1,9 +1,9 @@
-trade_date,ticker,side,price,quantity,fee,tax,account,currency,note
-2024-01-15,2330.TW,buy,585,1000,0.001425,0,broker1,TWD,first buy
-2024-09-20,2330.TW,buy,910,500,0.001425,0,broker1,TWD,add on weakness
-2025-03-18,2330.TW,sell,980,300,0.001425,0.003,broker1,TWD,trim position
-2024-02-05,0050.TW,buy,145.2,2000,0.001425,0,broker1,TWD,core ETF
-2024-03-01,AAPL,buy,182.5,10,0,0,broker2,USD,long term
-2025-02-14,AAPL,sell,210.4,4,0,0,broker2,USD,rebalance
-2024-04-18,MSFT,buy,412.3,8,0,0,broker2,USD,AI theme
-2024-06-10,NVDA,buy,121.4,15,0,0,broker2,USD,growth
+trade_date,ticker,name,side,price,quantity,fee,tax,account,currency,note
+2024-01-15,2330.TW,台積電,buy,585,1000,0.001425,0,broker1,TWD,first buy
+2024-09-20,2330.TW,台積電,buy,910,500,0.001425,0,broker1,TWD,add on weakness
+2025-03-18,2330.TW,台積電,sell,980,300,0.001425,0.003,broker1,TWD,trim position
+2024-02-05,0050.TW,元大台灣50,buy,145.2,2000,0.001425,0,broker1,TWD,core ETF
+2024-03-01,AAPL,Apple,buy,182.5,10,0,0,broker2,USD,long term
+2025-02-14,AAPL,Apple,sell,210.4,4,0,0,broker2,USD,rebalance
+2024-04-18,MSFT,Microsoft,buy,412.3,8,0,0,broker2,USD,AI theme
+2024-06-10,NVDA,NVIDIA,buy,121.4,15,0,0,broker2,USD,growth

@@ -1,8 +1,8 @@
-trade_date,ticker,side,price,quantity,fee,tax,account,currency,note
-2024/11/19,2330.TW,buy,1084.27,3000,0.001425,0,broker1,TWD,first buy
-2026/1/28,0050.TW,buy,73.91,7000,0.001425,0,broker1,TWD,add on weakness
-2026/1/26,0052.TW,buy,43.69,9000,0.001425,0,broker1,TWD,core ETF
-2026/3/31,00631L.TW,buy,20.39,50600,0.001425,0,broker1,TWD,core ETF
-2026/4/16,00631L.TW,buy,25.73,8000,0.001425,0,broker1,TWD,core ETF
-2024/4/18,MSFT,buy,412.3,8,0,0,broker2,USD,AI theme
-2024/6/10,NVDA,buy,121.4,15,0,0,broker2,USD,growth
+﻿trade_date,ticker,name,side,price,quantity,fee,tax,account,currency,note
+2024/11/19,2330.TW,台積電,buy,1084.27,3000,0.001425,0,broker1,TWD,first buy
+2026/1/28,0050.TW,元大台灣50,buy,73.91,7000,0.001425,0,broker1,TWD,add on weakness
+2026/1/26,0052.TW,富邦科技,buy,43.69,9000,0.001425,0,broker1,TWD,core ETF
+2026/3/31,00631L.TW,元大台灣50正2,buy,20.39,50600,0.001425,0,broker1,TWD,core ETF
+2026/4/16,00631L.TW,元大台灣50正2,buy,25.73,8000,0.001425,0,broker1,TWD,core ETF
+2024/4/18,MSFT,Microsoft,buy,412.3,8,0,0,broker2,USD,AI theme
+2024/6/10,NVDA,NVIDIA,buy,121.4,15,0,0,broker2,USD,growth

@@ -624,7 +624,10 @@
         font-size: 19px;
       }
       .cards {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(4, minmax(148px, 1fr));
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 4px;
       }
       .card {
         min-height: 104px;
@@ -755,7 +758,6 @@
             <div>
               <div class="eyebrow">Modern Finance Dashboard</div>
               <h1>股票庫存績效報表</h1>
-              <p>整體版面改成更接近現代 finance app 的 light dashboard 語言，強化層次、留白、資訊節奏與質感，並保留既有圖表線條顏色、市場報酬規則與互動邏輯。</p>
             </div>
             <div class="hero-tags">
               <div class="hero-tag">Live Snapshot</div>
@@ -773,7 +775,6 @@
               <div class="panel-kicker">Portfolio Snapshot</div>
               <h2 class="section-title">投資組合總覽</h2>
             </div>
-            <p>用更偏產品化的 KPI 卡片節奏整理資產概況，重點數值更容易掃讀。</p>
           </div>
           {% for group in summary_cards %}
           <div class="currency-block">

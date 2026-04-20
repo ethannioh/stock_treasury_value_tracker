@@ -37,11 +37,11 @@ py -3.11 app.py --transactions data/transactions.csv --dividends data/dividends.
 ### 新版格式
 
 ```csv
-trade_date,ticker,side,price,quantity,fee,tax,account,currency,note
-2024-01-15,2330.TW,buy,585,1000,0.001425,0,broker1,TWD,first buy
-2025-03-18,2330.TW,sell,980,300,0.001425,0.003,broker1,TWD,trim position
-2024-03-01,AAPL,buy,182.5,10,0,0,broker2,USD,long term
-2025-02-14,AAPL,sell,210.4,4,0,0,broker2,USD,rebalance
+trade_date,ticker,name,side,price,quantity,fee,tax,account,currency,note
+2024-01-15,2330.TW,台積電,buy,585,1000,0.001425,0,broker1,TWD,first buy
+2025-03-18,2330.TW,台積電,sell,980,300,0.001425,0.003,broker1,TWD,trim position
+2024-03-01,AAPL,Apple,buy,182.5,10,0,0,broker2,USD,long term
+2025-02-14,AAPL,Apple,sell,210.4,4,0,0,broker2,USD,rebalance
 ```
 
 欄位說明：

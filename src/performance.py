@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 
 from .price_fetcher import PriceFetcher
 from .utils import (
+    display_ticker,
     first_index_on_or_after,
     format_compact_number,
     format_percent,
@@ -133,6 +134,10 @@ def calculate_stock_summary(
             continue
 
         snapshot = fetcher.get_price_snapshot(ticker)
+        custom_name = ""
+        if "name" in tx_df.columns:
+            custom_names = tx_df["name"].fillna("").astype(str).str.strip()
+            custom_name = next((value for value in custom_names if value), "")
         total_cost = float(position_metrics["remaining_cost"])
         gross_buy_outlay = float(position_metrics["gross_buy_outlay"])
         realized_pnl = float(position_metrics["realized_pnl"])
@@ -150,7 +155,7 @@ def calculate_stock_summary(
         rows.append(
             {
                 "ticker": ticker,
-                "name": snapshot.name,
+                "name": custom_name or snapshot.name,
                 "currency": snapshot.currency or infer_currency_from_ticker(ticker),
                 "shares": shares,
                 "avg_cost": total_cost / shares if shares else 0.0,
@@ -530,6 +535,7 @@ def build_figures_by_currency(
 ) -> dict[str, dict[str, go.Figure]]:
     figures: dict[str, dict[str, go.Figure]] = {}
     reference_ticker_twd = str(reference_ticker_twd or "").strip().upper()
+    reference_display_ticker = display_ticker(reference_ticker_twd)
 
     try:
         reference_history = (
@@ -662,12 +668,12 @@ def build_figures_by_currency(
                         x=reference_return.index,
                         y=reference_return,
                         mode="lines",
-                        name=_format_legend_value(reference_ticker_twd, reference_return),
+                        name=_format_legend_value(reference_display_ticker, reference_return),
                         visible=position == default_position,
                         showlegend=True,
                         line=dict(color=REFERENCE_GRAY, width=2.2),
                         customdata=_formatted_hover(reference_return / 100, is_percent=True),
-                        hovertemplate=f"{reference_ticker_twd} 報酬率: %{{customdata}}<extra></extra>",
+                        hovertemplate=f"{reference_display_ticker} 報酬率: %{{customdata}}<extra></extra>",
                     )
                 )
             labels.append(label)
