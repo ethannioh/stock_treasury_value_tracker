@@ -213,9 +213,9 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
     if group.empty:
         fig.update_layout(
             title="持股市值占比",
-            paper_bgcolor="#FFFCF7",
-            plot_bgcolor="#F4F1EA",
-            font=dict(color="#162235", family=CHART_FONT_FAMILY),
+            paper_bgcolor="#F7FAFD",
+            plot_bgcolor="#EEF3F8",
+            font=dict(color="#16202F", family=CHART_FONT_FAMILY),
             margin=dict(l=24, r=24, t=72, b=24),
             annotations=[
                 dict(
@@ -223,7 +223,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
                     x=0.5,
                     y=0.5,
                     showarrow=False,
-                    font=dict(size=16, color="#667085"),
+                    font=dict(size=16, color="rgba(38, 48, 65, 0.66)"),
                 )
             ],
         )
@@ -256,9 +256,9 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
     )
     fig.update_layout(
         title="持股市值占比",
-        paper_bgcolor="#FFFCF7",
-        plot_bgcolor="#F4F1EA",
-        font=dict(color="#162235", family=CHART_FONT_FAMILY),
+        paper_bgcolor="#F7FAFD",
+        plot_bgcolor="#EEF3F8",
+        font=dict(color="#16202F", family=CHART_FONT_FAMILY),
         margin=dict(l=24, r=24, t=72, b=24),
         legend=dict(
             orientation="h",
@@ -266,10 +266,10 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
             y=-0.08,
             xanchor="left",
             yanchor="top",
-            bgcolor="rgba(255, 252, 247, 0.96)",
-            bordercolor="rgba(22, 34, 56, 0.10)",
+            bgcolor="rgba(247, 250, 253, 0.96)",
+            bordercolor="rgba(22, 32, 47, 0.10)",
             borderwidth=1,
-            font=dict(color="#667085"),
+            font=dict(color="rgba(38, 48, 65, 0.66)"),
         ),
     )
     fig.update_layout(title=None, margin=dict(l=24, r=24, t=24, b=24))
@@ -278,7 +278,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
         x=0.5,
         y=0.5,
         showarrow=False,
-        font=dict(size=15, color="#162235"),
+        font=dict(size=15, color="#16202F"),
     )
     return fig
 

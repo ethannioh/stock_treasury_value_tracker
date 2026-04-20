@@ -16,19 +16,19 @@ from .utils import (
 )
 
 
-BG = "#FFFCF7"
-PANEL = "#F4F1EA"
-GRID = "rgba(22, 34, 56, 0.10)"
-GRID_STRONG = "rgba(22, 34, 56, 0.18)"
-TEXT = "#162235"
-TITLE = "#132238"
-MUTED = "#667085"
-BLUE = "#5E5ADB"
+BG = "#F7FAFD"
+PANEL = "#EEF3F8"
+GRID = "rgba(22, 32, 47, 0.10)"
+GRID_STRONG = "rgba(22, 32, 47, 0.18)"
+TEXT = "#16202F"
+TITLE = "#16202F"
+MUTED = "rgba(38, 48, 65, 0.66)"
+BLUE = "#475569"
 GREEN = "#0F9F72"
 RED = "#D83F56"
-TEAL = "#704214"
+TEAL = "#94A3B8"
 REFERENCE_GRAY = "#A2A9B3"
-CHART_FONT_FAMILY = "'Aptos', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
+CHART_FONT_FAMILY = "'Space Grotesk', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
 DEFAULT_REFERENCE_TICKER_TWD = "0050.TW"
 EPSILON = 1e-9
 PERIOD_OPTIONS = [

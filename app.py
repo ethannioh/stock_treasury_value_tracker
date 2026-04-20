@@ -647,6 +647,192 @@ def inject_streamlit_theme() -> None:
                 font-size: 1.45rem;
             }
         }
+        /* Neo Mono overrides */
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap');
+        :root {
+            --tv-bg: #f2f5fa;
+            --tv-bg-soft: #fafbfd;
+            --tv-bg-tint: #e9eef5;
+            --tv-panel: rgba(255, 255, 255, 0.82);
+            --tv-panel-strong: rgba(255, 255, 255, 0.92);
+            --tv-panel-deep: #f5f7fb;
+            --tv-panel-ink: #18202d;
+            --tv-text: #263041;
+            --tv-heading: #16202f;
+            --tv-muted: rgba(38, 48, 65, 0.66);
+            --tv-soft: #263041;
+            --tv-dim: rgba(38, 48, 65, 0.44);
+            --tv-line: rgba(22, 32, 47, 0.08);
+            --tv-line-strong: rgba(22, 32, 47, 0.14);
+            --tv-shadow-lg: 0 28px 72px rgba(148, 163, 184, 0.22);
+            --tv-shadow-md: 0 20px 48px rgba(148, 163, 184, 0.18);
+            --tv-shadow-sm: 0 12px 28px rgba(148, 163, 184, 0.14);
+            --tv-font-sans: "Space Grotesk", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+            --tv-font-numeric: "Space Grotesk", "Bahnschrift", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+        }
+        .stApp {
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.9), transparent 20%),
+                radial-gradient(circle at 16% 18%, rgba(214, 226, 240, 0.75), transparent 24%),
+                linear-gradient(180deg, #fafbfd 0%, #eef3f8 100%);
+        }
+        .stApp::before {
+            background-image:
+                linear-gradient(rgba(22, 32, 47, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(22, 32, 47, 0.03) 1px, transparent 1px);
+            background-size: 52px 52px;
+        }
+        h1, h2, h3, p, label, .stCaption, .stMarkdown, .stTextInput label, .stNumberInput label, .stTextInput label p {
+            font-family: var(--tv-font-sans) !important;
+        }
+        .tv-topbar,
+        .tv-hero,
+        .tv-panel {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(244, 247, 251, 0.86));
+            border-color: rgba(22, 32, 47, 0.08);
+            backdrop-filter: blur(20px);
+        }
+        .tv-brand-mark {
+            background:
+                radial-gradient(circle at 28% 28%, rgba(255, 255, 255, 0.76), transparent 30%),
+                linear-gradient(135deg, #1d2735 0%, #6d7682 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 10px 24px rgba(148, 163, 184, 0.24);
+        }
+        .tv-brand-eyebrow,
+        .tv-eyebrow,
+        .tv-section-kicker,
+        .tv-kpi-label,
+        .tv-mini-label {
+            color: rgba(22, 32, 47, 0.42) !important;
+        }
+        .tv-brand-title,
+        .tv-section-title,
+        .tv-hero h1 {
+            color: #16202f !important;
+            letter-spacing: -0.05em;
+        }
+        .tv-hero {
+            padding: 1.7rem;
+            border-radius: 32px;
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.92), transparent 22%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(240, 244, 249, 0.88));
+        }
+        .tv-hero::before,
+        .tv-hero::after {
+            display: none;
+        }
+        .tv-hero h1 {
+            font-size: clamp(2.8rem, 5vw, 4.6rem);
+            line-height: 0.92;
+        }
+        .tv-pill,
+        .tv-chip,
+        .tv-market-pill {
+            background: rgba(255, 255, 255, 0.88);
+            border-color: rgba(22, 32, 47, 0.08);
+            color: rgba(22, 32, 47, 0.82) !important;
+            box-shadow: none;
+        }
+        .tv-pill strong {
+            color: #16202f;
+        }
+        .tv-chip {
+            padding: 0.72rem 0.95rem;
+        }
+        .tv-card-grid {
+            padding: 14px;
+            border-radius: 30px;
+            background: linear-gradient(180deg, #edf3fb 0%, #d9e6f5 100%);
+            box-shadow:
+                14px 14px 28px rgba(0, 0, 0, 0.18),
+                inset 1px 1px 0 rgba(255, 255, 255, 0.78);
+        }
+        .tv-kpi-card {
+            background: #e6eef8;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow:
+                14px 14px 28px rgba(158, 177, 203, 0.45),
+                -12px -12px 24px rgba(255, 255, 255, 0.82);
+            color: #1b2433;
+        }
+        .tv-kpi-card::after {
+            display: none;
+        }
+        .tv-kpi-label {
+            color: rgba(27, 36, 51, 0.54) !important;
+        }
+        .tv-kpi-value {
+            color: #16202f;
+        }
+        .tv-kpi-card.slate,
+        .tv-kpi-card.gold,
+        .tv-kpi-card.teal,
+        .tv-kpi-card.amber,
+        .tv-kpi-card.green,
+        .tv-kpi-card.red {
+            background: #e6eef8;
+            border-color: rgba(255, 255, 255, 0.65);
+        }
+        .tv-kpi-card.slate::before { background: rgba(24, 32, 45, 0.42); }
+        .tv-kpi-card.gold::before,
+        .tv-kpi-card.amber::before { background: rgba(88, 99, 118, 0.34); }
+        .tv-kpi-card.teal::before { background: rgba(79, 167, 255, 0.38); }
+        .tv-kpi-card.green::before { background: rgba(15, 159, 114, 0.48); }
+        .tv-kpi-card.red::before { background: rgba(216, 63, 86, 0.48); }
+        .tv-kpi-card.green .tv-kpi-value { color: #0f9f72; }
+        .tv-kpi-card.red .tv-kpi-value { color: #d83f56; }
+        .tv-table-wrap,
+        .stPlotlyChart {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(244, 247, 251, 0.88));
+            border-color: rgba(22, 32, 47, 0.08);
+            box-shadow: var(--tv-shadow-sm);
+        }
+        .tv-table-wrap thead th {
+            background: rgba(236, 241, 247, 0.98);
+            color: #16202f !important;
+        }
+        .tv-table-wrap th,
+        .tv-table-wrap td {
+            color: rgba(38, 48, 65, 0.84);
+            border-bottom-color: rgba(22, 32, 47, 0.08);
+        }
+        .tv-table-wrap td:first-child,
+        .tv-table-wrap td:nth-child(2) {
+            color: #16202f;
+        }
+        .tv-table-wrap tbody tr:nth-child(even) {
+            background: rgba(22, 32, 47, 0.025);
+        }
+        .tv-table-wrap tbody tr:hover {
+            background: rgba(22, 32, 47, 0.05);
+        }
+        .stButton > button,
+        .stTextInput > div > div > input,
+        .stNumberInput input {
+            background: rgba(255, 255, 255, 0.92);
+            color: #16202f;
+            border-color: rgba(22, 32, 47, 0.08) !important;
+            box-shadow: none;
+        }
+        .stButton > button:hover {
+            background: rgba(235, 240, 246, 0.98);
+        }
+        @media (max-width: 430px) {
+            .tv-hero {
+                padding: 1.2rem;
+            }
+            .tv-hero h1 {
+                font-size: 2.35rem;
+            }
+            .tv-card-grid {
+                padding: 10px;
+                border-radius: 24px;
+            }
+            .tv-kpi-card {
+                min-height: 94px;
+            }
+        }
         </style>
         """,
         unsafe_allow_html=True,
