@@ -227,6 +227,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
                 )
             ],
         )
+        fig.update_layout(title=None, margin=dict(l=24, r=24, t=24, b=24))
         return fig
 
     group = group.sort_values("market_value", ascending=False, ignore_index=True)
@@ -271,6 +272,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
             font=dict(color="#667085"),
         ),
     )
+    fig.update_layout(title=None, margin=dict(l=24, r=24, t=24, b=24))
     fig.add_annotation(
         text=f"總淨值<br><b>{format_compact_number(total_value)}</b>",
         x=0.5,

@@ -624,17 +624,25 @@
         font-size: 19px;
       }
       .cards {
-        grid-template-columns: repeat(4, minmax(148px, 1fr));
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding-bottom: 4px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
       }
       .card {
-        min-height: 104px;
+        min-height: 88px;
+        padding: 12px;
+      }
+      .card::before {
+        left: 12px;
+        right: 12px;
+      }
+      .card .label {
+        margin-bottom: 8px;
+        font-size: 9px;
+        letter-spacing: 0.14em;
       }
       .card .value,
       .status-value {
-        font-size: 24px;
+        font-size: 22px;
       }
       .detail-table {
         font-size: 11px;
@@ -770,12 +778,6 @@
 
       <div class="stack">
         <section class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-kicker">Portfolio Snapshot</div>
-              <h2 class="section-title">投資組合總覽</h2>
-            </div>
-          </div>
           {% for group in summary_cards %}
           <div class="currency-block">
             <div class="market-label">{{ group.market_label }}</div>
@@ -859,13 +861,6 @@
                 <div class="chart-scroll return-chart" data-chart-group="{{ loop.index0 }}" data-chart-kind="return">{{ section.return_chart | safe }}</div>
               </section>
               <section class="chart-module">
-                <div class="module-head">
-                  <div>
-                    <div class="module-kicker">Allocation</div>
-                    <h3 class="module-title">持股市值占比</h3>
-                  </div>
-                  <div class="module-note">以目前各持股淨值計算占比，方便快速掌握集中度。</div>
-                </div>
                 <div class="chart-scroll allocation-scroll" data-chart-group="{{ loop.index0 }}" data-chart-kind="allocation">{{ section.allocation_chart | safe }}</div>
               </section>
             </div>

@@ -626,13 +626,25 @@ def inject_streamlit_theme() -> None:
         }
         @media (max-width: 430px) {
             .tv-card-grid {
-                grid-template-columns: repeat(4, minmax(148px, 1fr));
-                overflow-x: auto;
-                overflow-y: hidden;
-                padding-bottom: 0.25rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.65rem;
+                margin: 0.55rem 0 0.9rem;
             }
             .tv-kpi-card {
-                min-height: 100px;
+                min-height: 88px;
+                padding: 0.8rem 0.8rem 0.75rem;
+            }
+            .tv-kpi-card::before {
+                left: 0.8rem;
+                right: 0.8rem;
+            }
+            .tv-kpi-label {
+                margin-bottom: 0.55rem;
+                font-size: 9px;
+                letter-spacing: 0.14em;
+            }
+            .tv-kpi-value {
+                font-size: 1.45rem;
             }
         }
         </style>
@@ -749,19 +761,6 @@ def run_streamlit() -> None:
         st.stop()
 
     render_dashboard_hero(snapshot, stock_summary)
-    st.markdown(
-        """
-        <section class="tv-panel">
-          <div class="tv-panel-head">
-            <div>
-              <div class="tv-section-kicker">Portfolio Snapshot</div>
-              <h2 class="tv-section-title">投資組合總覽</h2>
-            </div>
-          </div>
-        </section>
-        """,
-        unsafe_allow_html=True,
-    )
     render_kpi_cards(snapshot)
 
     st.markdown(
