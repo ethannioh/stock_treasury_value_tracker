@@ -894,6 +894,17 @@ def inject_streamlit_theme() -> None:
         .stPlotlyChart .rangeselector:hover rect {
             fill: rgba(24, 43, 61, 0.98) !important;
         }
+        .stPlotlyChart .updatemenu-button.active rect,
+        .stPlotlyChart .rangeselector .button.active rect,
+        .stPlotlyChart g.updatemenu-button.active rect {
+            fill: rgba(22, 47, 67, 0.98) !important;
+            stroke: rgba(88, 234, 255, 0.42) !important;
+        }
+        .stPlotlyChart .updatemenu-button.active text,
+        .stPlotlyChart .rangeselector .button.active text,
+        .stPlotlyChart g.updatemenu-button.active text {
+            fill: #ffffff !important;
+        }
         .tv-table-wrap,
         .stPlotlyChart {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
@@ -964,21 +975,52 @@ def inject_streamlit_theme() -> None:
                 height: 76px;
             }
             .tv-card-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: minmax(0, 1fr);
                 grid-template-areas:
-                    "feature feature"
-                    "cost pnl"
-                    "return return";
+                    "feature"
+                    "cost"
+                    "pnl"
+                    "return";
+                gap: 10px;
             }
             .tv-kpi-card {
-                min-height: 94px;
+                min-height: auto;
                 border-radius: 22px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.9rem;
+                padding: 1.2rem 0.95rem 0.85rem;
             }
             .tv-kpi-card.feature {
-                min-height: 176px;
+                min-height: auto;
             }
             .tv-kpi-card.feature::after {
-                height: 54px;
+                display: none;
+            }
+            .tv-kpi-card.feature,
+            .tv-kpi-card.cost,
+            .tv-kpi-card.pnl,
+            .tv-kpi-card.return {
+                grid-area: auto;
+            }
+            .tv-kpi-card::before {
+                top: 0.72rem;
+                left: 0.95rem;
+                right: 0.95rem;
+            }
+            .tv-kpi-label {
+                margin-top: 0.25rem;
+                font-size: 0.74rem;
+                line-height: 1.2;
+                white-space: nowrap;
+            }
+            .tv-kpi-value,
+            .tv-kpi-card.feature .tv-kpi-value {
+                font-size: 1.15rem;
+                line-height: 1;
+                text-align: right;
+                white-space: nowrap;
             }
         }
         </style>

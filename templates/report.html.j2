@@ -977,6 +977,17 @@
     .js-plotly-plot .rangeselector:hover rect {
       fill: rgba(24, 43, 61, 0.98) !important;
     }
+    .js-plotly-plot .updatemenu-button.active rect,
+    .js-plotly-plot .rangeselector .button.active rect,
+    .js-plotly-plot g.updatemenu-button.active rect {
+      fill: rgba(22, 47, 67, 0.98) !important;
+      stroke: rgba(88, 234, 255, 0.42) !important;
+    }
+    .js-plotly-plot .updatemenu-button.active text,
+    .js-plotly-plot .rangeselector .button.active text,
+    .js-plotly-plot g.updatemenu-button.active text {
+      fill: #ffffff !important;
+    }
     .table-shell,
     .chart-scroll .js-plotly-plot {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
@@ -1037,17 +1048,51 @@
         height: 76px;
       }
       .cards {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         grid-template-areas:
-          "feature feature"
-          "cost pnl"
-          "return return";
+          "feature"
+          "cost"
+          "pnl"
+          "return";
+        gap: 10px;
       }
       .card.feature {
-        min-height: 176px;
+        min-height: auto;
       }
       .card.feature::after {
-        height: 54px;
+        display: none;
+      }
+      .card {
+        min-height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 18px 15px 14px;
+      }
+      .card.feature,
+      .card.cost,
+      .card.pnl,
+      .card.return {
+        grid-area: auto;
+      }
+      .card::before {
+        top: 12px;
+        left: 15px;
+        right: 15px;
+      }
+      .card .label {
+        margin-top: 4px;
+        font-size: 0.74rem;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .card .value,
+      .card.feature .value {
+        font-size: 1.15rem;
+        line-height: 1;
+        text-align: right;
+        white-space: nowrap;
       }
     }
   </style>

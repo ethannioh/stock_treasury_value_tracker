@@ -336,13 +336,21 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
                 dict(step="all", label="全部"),
             ],
             bgcolor="rgba(17, 21, 33, 0.98)",
-            activecolor="rgba(88, 234, 255, 0.22)",
+            activecolor="rgba(22, 47, 67, 0.98)",
             bordercolor=GRID,
             font=dict(color="rgba(255, 255, 255, 0.82)"),
         ),
         rangeslider=dict(visible=False),
         gridcolor=GRID,
         zerolinecolor=GRID,
+        showline=True,
+        linecolor=GRID,
+        tickfont=dict(color=MUTED),
+    )
+    fig.update_layout(xaxis_title=None, legend_title_text="")
+    fig.update_yaxes(
+        gridcolor=GRID,
+        zerolinecolor=GRID_STRONG,
         showline=True,
         linecolor=GRID,
         tickfont=dict(color=MUTED),
@@ -354,13 +362,6 @@ def _period_xaxis_range(df: pd.DataFrame, period_key: str) -> list[pd.Timestamp]
     if period_df.empty:
         return None
     return [period_df.index.min(), period_df.index.max()]
-    fig.update_yaxes(
-        gridcolor=GRID,
-        zerolinecolor=GRID_STRONG,
-        showline=True,
-        linecolor=GRID,
-        tickfont=dict(color=MUTED),
-    )
 
 
 def _slice_period(df: pd.DataFrame, period_key: str) -> pd.DataFrame:
