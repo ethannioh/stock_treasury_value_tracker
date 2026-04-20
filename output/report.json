@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-19T07:01:41.449450",
+  "generated_at": "2026-04-20T05:10:13.491470",
   "reference_ticker_twd": "0050.TW",
   "summary": {
     "USD": {
@@ -20,7 +20,7 @@
   "holdings": [
     {
       "ticker": "0050.TW",
-      "name": "YUANTA SECURITIES INV TRUST CO ",
+      "name": "元大台灣50",
       "currency": "TWD",
       "shares": 7000.0,
       "avg_cost": 74.01532175,
@@ -37,7 +37,7 @@
     },
     {
       "ticker": "0052.TW",
-      "name": "FUBON ASSET MANAGEMENT CO LTD F",
+      "name": "富邦科技",
       "currency": "TWD",
       "shares": 9000.0,
       "avg_cost": 43.75225825,
@@ -54,7 +54,7 @@
     },
     {
       "ticker": "00631L.TW",
-      "name": "YUANTA SECURITIES INV TRUST CO ",
+      "name": "元大台灣50正2",
       "currency": "TWD",
       "shares": 58600.0,
       "avg_cost": 21.14910482849829,
@@ -71,7 +71,7 @@
     },
     {
       "ticker": "2330.TW",
-      "name": "TAIWAN SEMICONDUCTOR MANUFACTUR",
+      "name": "台積電",
       "currency": "TWD",
       "shares": 3000.0,
       "avg_cost": 1085.81508475,
@@ -88,7 +88,7 @@
     },
     {
       "ticker": "MSFT",
-      "name": "Microsoft Corporation",
+      "name": "Microsoft",
       "currency": "USD",
       "shares": 8.0,
       "avg_cost": 412.3,
@@ -105,7 +105,7 @@
     },
     {
       "ticker": "NVDA",
-      "name": "NVIDIA Corporation",
+      "name": "NVIDIA",
       "currency": "USD",
       "shares": 15.0,
       "avg_cost": 121.4,
