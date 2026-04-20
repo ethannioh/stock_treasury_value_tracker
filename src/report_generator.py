@@ -15,29 +15,29 @@ from .utils import display_security_label, display_ticker, format_compact_number
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
 PWA_APP_NAME = "Stock Treasury Tracker"
 PWA_SHORT_NAME = "Treasury"
-PWA_THEME_COLOR = "#132238"
-PWA_BG_COLOR = "#F7F3EC"
-CHART_FONT_FAMILY = "'Aptos', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
+PWA_THEME_COLOR = "#0D1824"
+PWA_BG_COLOR = "#09111A"
+CHART_FONT_FAMILY = "'Space Grotesk', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
 PWA_ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#132238"/>
-      <stop offset="100%" stop-color="#0F9F72"/>
+      <stop offset="0%" stop-color="#58EAFF"/>
+      <stop offset="100%" stop-color="#88FF98"/>
     </linearGradient>
     <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F2E6C9"/>
+      <stop offset="0%" stop-color="#EAF4FF"/>
       <stop offset="100%" stop-color="#FFFFFF"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="#F7F3EC"/>
+  <rect width="512" height="512" rx="112" fill="#09111A"/>
   <rect x="28" y="28" width="456" height="456" rx="104" fill="url(#outer)"/>
   <rect x="86" y="92" width="340" height="252" rx="44" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.16)" stroke-width="8"/>
   <path d="M118 358h276" stroke="rgba(255,255,255,0.24)" stroke-width="18" stroke-linecap="round"/>
   <path d="M138 312l70-68 52 40 92-116" fill="none" stroke="url(#spark)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="138" cy="312" r="16" fill="#FFFFFF"/>
-  <circle cx="208" cy="244" r="16" fill="#F4E8C7"/>
+  <circle cx="208" cy="244" r="16" fill="#E8FF85"/>
   <circle cx="260" cy="284" r="16" fill="#FFFFFF"/>
-  <circle cx="352" cy="168" r="16" fill="#F4E8C7"/>
+  <circle cx="352" cy="168" r="16" fill="#E8FF85"/>
 </svg>"""
 
 SUMMARY_LABELS = {
@@ -82,16 +82,16 @@ VISIBLE_TABLE_COLUMNS = [
 ]
 
 PIE_COLORS = [
-    "#5B8FF9",
-    "#61DDAA",
-    "#F6BD16",
-    "#E8684A",
-    "#6DC8EC",
-    "#9270CA",
-    "#FF9D4D",
-    "#269A99",
-    "#FF99C3",
-    "#7E8BFF",
+    "#FF5B6E",
+    "#3B82F6",
+    "#22C55E",
+    "#F59E0B",
+    "#A855F7",
+    "#06B6D4",
+    "#F97316",
+    "#EC4899",
+    "#84CC16",
+    "#8B5CF6",
 ]
 
 
@@ -106,10 +106,16 @@ def _currency_sort_key(currency: str) -> tuple[int, str]:
 
 def build_summary_cards(snapshot: dict[str, dict[str, float]]) -> list[dict[str, object]]:
     cards: list[dict[str, object]] = []
+    layout_order = [
+        ("total_market_value", "feature"),
+        ("total_cost", "cost"),
+        ("total_pnl", "pnl"),
+        ("total_return_pct", "return"),
+    ]
 
     for currency, metrics in sorted(snapshot.items(), key=lambda item: _currency_sort_key(item[0])):
         card_items: list[dict[str, str]] = []
-        for key in ["total_cost", "total_market_value", "total_pnl", "total_return_pct"]:
+        for key, layout_class in layout_order:
             value = metrics[key]
             if key == "total_cost":
                 tone = "slate"
@@ -127,6 +133,7 @@ def build_summary_cards(snapshot: dict[str, dict[str, float]]) -> list[dict[str,
                     "label": SUMMARY_LABELS[key],
                     "value": format_percent(value) if key.endswith("_pct") else format_compact_number(value),
                     "tone": tone,
+                    "layout_class": layout_class,
                 }
             )
 
@@ -213,9 +220,9 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
     if group.empty:
         fig.update_layout(
             title="持股市值占比",
-            paper_bgcolor="#F7FAFD",
-            plot_bgcolor="#EEF3F8",
-            font=dict(color="#16202F", family=CHART_FONT_FAMILY),
+            paper_bgcolor="#09111A",
+            plot_bgcolor="#0F1D2B",
+            font=dict(color="#FFFFFF", family=CHART_FONT_FAMILY),
             margin=dict(l=24, r=24, t=72, b=24),
             annotations=[
                 dict(
@@ -223,7 +230,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
                     x=0.5,
                     y=0.5,
                     showarrow=False,
-                    font=dict(size=16, color="rgba(38, 48, 65, 0.66)"),
+                    font=dict(size=16, color="rgba(233, 240, 255, 0.66)"),
                 )
             ],
         )
@@ -246,7 +253,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
             hole=0.42,
             sort=False,
             direction="clockwise",
-            marker=dict(colors=PIE_COLORS, line=dict(color="#FFFFFF", width=2)),
+            marker=dict(colors=PIE_COLORS, line=dict(color="rgba(255, 255, 255, 0.36)", width=2.2)),
             text=group["display_ticker"],
             textinfo="text+percent",
             textposition="outside",
@@ -256,9 +263,9 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
     )
     fig.update_layout(
         title="持股市值占比",
-        paper_bgcolor="#F7FAFD",
-        plot_bgcolor="#EEF3F8",
-        font=dict(color="#16202F", family=CHART_FONT_FAMILY),
+        paper_bgcolor="#09111A",
+        plot_bgcolor="#0F1D2B",
+        font=dict(color="#FFFFFF", family=CHART_FONT_FAMILY),
         margin=dict(l=24, r=24, t=72, b=24),
         legend=dict(
             orientation="h",
@@ -266,10 +273,10 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
             y=-0.08,
             xanchor="left",
             yanchor="top",
-            bgcolor="rgba(247, 250, 253, 0.96)",
-            bordercolor="rgba(22, 32, 47, 0.10)",
+            bgcolor="rgba(15, 29, 43, 0.94)",
+            bordercolor="rgba(255, 255, 255, 0.10)",
             borderwidth=1,
-            font=dict(color="rgba(38, 48, 65, 0.66)"),
+            font=dict(color="rgba(231, 249, 255, 0.74)"),
         ),
     )
     fig.update_layout(title=None, margin=dict(l=24, r=24, t=24, b=24))
@@ -278,7 +285,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
         x=0.5,
         y=0.5,
         showarrow=False,
-        font=dict(size=15, color="#16202F"),
+        font=dict(size=15, color="#FFFFFF"),
     )
     return fig
 

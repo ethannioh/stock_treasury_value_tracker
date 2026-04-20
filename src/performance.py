@@ -16,18 +16,18 @@ from .utils import (
 )
 
 
-BG = "#F7FAFD"
-PANEL = "#EEF3F8"
-GRID = "rgba(22, 32, 47, 0.10)"
-GRID_STRONG = "rgba(22, 32, 47, 0.18)"
-TEXT = "#16202F"
-TITLE = "#16202F"
-MUTED = "rgba(38, 48, 65, 0.66)"
-BLUE = "#475569"
-GREEN = "#0F9F72"
-RED = "#D83F56"
-TEAL = "#94A3B8"
-REFERENCE_GRAY = "#A2A9B3"
+BG = "#09111A"
+PANEL = "#0F1D2B"
+GRID = "rgba(255, 255, 255, 0.10)"
+GRID_STRONG = "rgba(255, 255, 255, 0.18)"
+TEXT = "#EEF8FF"
+TITLE = "#FFFFFF"
+MUTED = "rgba(231, 249, 255, 0.66)"
+BLUE = "#58EAFF"
+GREEN = "#88FF98"
+RED = "#FF768E"
+TEAL = "#E8FF85"
+REFERENCE_GRAY = "#9BB7D1"
 CHART_FONT_FAMILY = "'Space Grotesk', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
 DEFAULT_REFERENCE_TICKER_TWD = "0050.TW"
 EPSILON = 1e-9
@@ -312,13 +312,13 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
         margin=dict(l=44, r=24, t=108, b=44),
         title_font=dict(size=20, color=TITLE),
         legend=dict(
-            bgcolor="rgba(255, 252, 247, 0.96)",
+            bgcolor="rgba(17, 21, 33, 0.96)",
             bordercolor=GRID,
             borderwidth=1,
-            font=dict(color=MUTED),
+            font=dict(color="rgba(255, 255, 255, 0.82)"),
         ),
         hoverlabel=dict(
-            bgcolor="rgba(255, 252, 247, 0.98)",
+            bgcolor="rgba(17, 21, 33, 0.98)",
             bordercolor=GRID_STRONG,
             font=dict(color=TITLE),
         ),
@@ -335,10 +335,10 @@ def _apply_common_layout(fig: go.Figure, title: str, yaxis_title: str) -> None:
                 dict(count=5, label="5Y", step="year", stepmode="backward"),
                 dict(step="all", label="全部"),
             ],
-            bgcolor="rgba(255, 252, 247, 0.98)",
-            activecolor="rgba(15, 159, 114, 0.14)",
+            bgcolor="rgba(17, 21, 33, 0.98)",
+            activecolor="rgba(88, 234, 255, 0.22)",
             bordercolor=GRID,
-            font=dict(color=MUTED),
+            font=dict(color="rgba(255, 255, 255, 0.82)"),
         ),
         rangeslider=dict(visible=False),
         gridcolor=GRID,
@@ -519,9 +519,9 @@ def _add_return_period_buttons(fig: go.Figure, labels: list[str], title: str, tr
                 showactive=True,
                 buttons=buttons,
                 active=active_index,
-                bgcolor="rgba(255, 252, 247, 0.98)",
+                bgcolor="rgba(17, 21, 33, 0.98)",
                 bordercolor=GRID,
-                font=dict(color=MUTED),
+                font=dict(color="rgba(255, 255, 255, 0.82)"),
             )
         ]
     )
@@ -561,7 +561,7 @@ def build_figures_by_currency(
                 name=market_value_legend,
                 line=dict(color=BLUE, width=3),
                 fill="tozeroy",
-                fillgradient=_fill_gradient("rgba(94, 90, 219, 0.18)", "rgba(94, 90, 219, 0.02)"),
+                fillgradient=_fill_gradient("rgba(88, 234, 255, 0.22)", "rgba(88, 234, 255, 0.03)"),
                 customdata=_formatted_hover(df["market_value"]),
                 hovertemplate="投資組合市值: %{customdata}<extra></extra>",
             )
@@ -572,7 +572,7 @@ def build_figures_by_currency(
                 y=df["cost_basis"],
                 mode="lines",
                 name=cost_basis_legend,
-                line=dict(color="#A2A9B3", width=2, dash="dot"),
+                line=dict(color=REFERENCE_GRAY, width=2, dash="dot"),
                 customdata=_formatted_hover(df["cost_basis"]),
                 hovertemplate="累積投入成本: %{customdata}<extra></extra>",
             )
@@ -585,7 +585,7 @@ def build_figures_by_currency(
                 name=total_pnl_legend,
                 line=dict(color=TEAL, width=2.5),
                 fill="tozeroy",
-                fillgradient=_fill_gradient("rgba(112, 66, 20, 0.14)", "rgba(112, 66, 20, 0.01)"),
+                fillgradient=_fill_gradient("rgba(232, 255, 133, 0.18)", "rgba(232, 255, 133, 0.03)"),
                 customdata=_formatted_hover(df["total_pnl"]),
                 hovertemplate="總損益: %{customdata}<extra></extra>",
             )
@@ -601,14 +601,14 @@ def build_figures_by_currency(
         show_twd_reference = str(currency).upper() == "TWD" and reference_ticker_twd and not reference_history.empty
         traces_per_period = 3 if show_twd_reference else 2
         positive_fill = (
-            ("rgba(216, 63, 86, 0.18)", "rgba(216, 63, 86, 0.02)")
+            ("rgba(255, 118, 142, 0.18)", "rgba(255, 118, 142, 0.03)")
             if positive_color == RED
-            else ("rgba(15, 159, 114, 0.18)", "rgba(15, 159, 114, 0.02)")
+            else ("rgba(109, 255, 227, 0.18)", "rgba(109, 255, 227, 0.03)")
         )
         negative_fill = (
-            ("rgba(216, 63, 86, 0.18)", "rgba(216, 63, 86, 0.02)")
+            ("rgba(255, 118, 142, 0.18)", "rgba(255, 118, 142, 0.03)")
             if negative_color == RED
-            else ("rgba(15, 159, 114, 0.18)", "rgba(15, 159, 114, 0.02)")
+            else ("rgba(109, 255, 227, 0.18)", "rgba(109, 255, 227, 0.03)")
         )
 
         for position, (period_key, label) in enumerate(PERIOD_OPTIONS):
