@@ -40,12 +40,17 @@ ROOT_DIR = Path(__file__).parent
 DATA_DIR = ROOT_DIR / "data"
 CACHE_DIR = ROOT_DIR / "cache"
 OUTPUT_DIR = ROOT_DIR / "output"
+TAIPEI_TIMEZONE = "Asia/Taipei"
 
 
 def get_app_dir() -> Path:
     if getattr(sys, "frozen", False):
         return Path(sys.executable).resolve().parent
     return ROOT_DIR
+
+
+def current_taipei_timestamp() -> pd.Timestamp:
+    return pd.Timestamp.now(tz=TAIPEI_TIMEZONE)
 
 
 def write_error_log(exc: Exception, args: argparse.Namespace | None = None) -> Path:
@@ -134,7 +139,7 @@ def run_cli(args: argparse.Namespace) -> int:
     snapshot = calculate_portfolio_snapshot(timeline)
     figures = build_figures_by_currency(timeline, fetcher, args.reference_ticker_twd)
 
-    generated_at = pd.Timestamp.now()
+    generated_at = current_taipei_timestamp()
     html = render_html_report(
         snapshot=snapshot,
         stock_summary=stock_summary,
@@ -1053,7 +1058,7 @@ def render_dashboard_hero(snapshot: dict[str, dict[str, float]], stock_summary: 
     import streamlit as st
 
     overview = build_report_overview(snapshot, stock_summary)
-    generated_at = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")
+    generated_at = current_taipei_timestamp().strftime("%Y-%m-%d %H:%M")
     st.markdown(
         f"""
         <section class="tv-topbar">
@@ -1215,7 +1220,7 @@ def run_streamlit() -> None:
         st.rerun()
 
     if st.button("輸出 HTML / JSON 報表", type="primary"):
-        generated_at = pd.Timestamp.now()
+        generated_at = current_taipei_timestamp()
         html = render_html_report(
             snapshot=snapshot,
             stock_summary=stock_summary,
