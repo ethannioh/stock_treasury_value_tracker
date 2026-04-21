@@ -848,6 +848,36 @@
     .hero-tag strong {
       color: #ffffff;
     }
+    .chart-period-select {
+      border-radius: 999px;
+      background: rgba(15, 29, 43, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: none;
+    }
+    .chart-period-select select {
+      background: rgba(15, 29, 43, 0.96);
+      color: #ffffff;
+      -webkit-text-fill-color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.10);
+      box-shadow: none;
+    }
+    .chart-period-select select:focus,
+    .chart-period-select select:focus-visible,
+    .chart-period-select select:active {
+      background: rgba(22, 47, 67, 0.98);
+      color: #ffffff;
+      -webkit-text-fill-color: #ffffff;
+      outline: none;
+      border-color: rgba(88, 234, 255, 0.42);
+      box-shadow: 0 0 0 2px rgba(88, 234, 255, 0.14);
+    }
+    .chart-period-select select option {
+      background: #0f1d2b;
+      color: #ffffff;
+    }
+    .chart-period-select::after {
+      color: rgba(255, 255, 255, 0.76);
+    }
     .chart-switcher button.is-active {
       background: #ffffff;
       color: #10131b;
@@ -1093,6 +1123,18 @@
         line-height: 1;
         text-align: right;
         white-space: nowrap;
+      }
+      .chart-period-select {
+        width: 100%;
+        background: rgba(15, 29, 43, 0.98);
+      }
+      .chart-period-select select {
+        width: 100%;
+        min-height: 40px;
+        background: rgba(15, 29, 43, 0.98);
+        color: #ffffff;
+        -webkit-text-fill-color: #ffffff;
+        border-color: rgba(255, 255, 255, 0.12);
       }
     }
   </style>
