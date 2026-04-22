@@ -190,6 +190,15 @@
       font-family: var(--font-numeric);
       letter-spacing: 0;
     }
+    .meta-action {
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .meta-action:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+    }
     .main {
       min-width: 0;
     }
@@ -848,6 +857,17 @@
     .hero-tag strong {
       color: #ffffff;
     }
+    .meta-action {
+      background: rgba(15, 29, 43, 0.98);
+      color: #ffffff;
+      border-color: rgba(88, 234, 255, 0.22);
+      text-decoration: none;
+    }
+    .meta-action:hover {
+      background: rgba(22, 47, 67, 0.98);
+      color: #ffffff;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+    }
     .chart-period-select {
       border-radius: 999px;
       background: rgba(15, 29, 43, 0.96);
@@ -1161,6 +1181,13 @@
         <div class="meta-pill">Updated <strong>{{ generated_at }}</strong></div>
         <div class="meta-pill">Markets <strong>{{ overview.market_scope }}</strong></div>
         <div class="meta-pill">Holdings <strong>{{ overview.holdings_count }}</strong></div>
+        <a
+          class="meta-pill meta-action"
+          href="https://github.com/ethannioh/stock_treasury_value_tracker/actions/workflows/stock-treasury-pages.yml"
+          target="_blank"
+          rel="noreferrer"
+          title="Open GitHub Actions and click Run workflow"
+        >Update Now</a>
       </div>
     </header>
 
