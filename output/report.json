@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-04-23T16:25:38.220773+08:00",
+  "generated_at": "2026-04-24T13:39:35.664509+08:00",
   "reference_ticker_twd": "0050.TW",
   "summary": {
     "USD": {
       "total_cost": 5119.4,
-      "total_market_value": 6500.860107421875,
+      "total_market_value": 6320.599990844727,
       "total_dividends": 0.0,
-      "total_pnl": 1381.4601074218754,
-      "total_return_pct": 0.2698480500492002
+      "total_pnl": 1201.199990844727,
+      "total_return_pct": 0.23463686972003106
     },
     "TWD": {
       "total_cost": 5408660.3737,
-      "total_market_value": 8818637.473641798,
+      "total_market_value": 9257620.389319051,
       "total_dividends": 17995.0,
-      "total_pnl": 3427972.0999417976,
-      "total_return_pct": 0.6337931877938867
+      "total_pnl": 3866955.0156190507,
+      "total_return_pct": 0.7149561533614492
     }
   },
   "holdings": [
@@ -24,16 +24,16 @@
       "currency": "TWD",
       "shares": 7000.0,
       "avg_cost": 74.01532175,
-      "last_price": 86.3499984741211,
+      "last_price": 89.8499984741211,
       "total_cost": 518107.25225,
       "gross_buy_outlay": 518107.25225,
-      "market_value": 601775.2981161118,
+      "market_value": 626166.8856161118,
       "realized_pnl": 0.0,
-      "unrealized_pnl": 83668.04586611176,
-      "unrealized_return_pct": 0.16148788788955185,
+      "unrealized_pnl": 108059.63336611178,
+      "unrealized_return_pct": 0.20856614706093757,
       "dividends": 0.0,
-      "total_pnl": 83668.04586611176,
-      "total_return_pct": 0.16148788788955185
+      "total_pnl": 108059.63336611178,
+      "total_return_pct": 0.20856614706093757
     },
     {
       "ticker": "0052.TW",
@@ -41,16 +41,16 @@
       "currency": "TWD",
       "shares": 9000.0,
       "avg_cost": 43.75225825,
-      "last_price": 50.349998474121094,
+      "last_price": 52.650001525878906,
       "total_cost": 393770.32425,
       "gross_buy_outlay": 393770.32425,
-      "market_value": 451144.797577858,
+      "market_value": 471753.22742214205,
       "realized_pnl": 0.0,
-      "unrealized_pnl": 57374.473327857966,
-      "unrealized_return_pct": 0.14570542723638974,
+      "unrealized_pnl": 77982.90317214205,
+      "unrealized_return_pct": 0.1980415952387302,
       "dividends": 0.0,
-      "total_pnl": 57374.473327857966,
-      "total_return_pct": 0.14570542723638974
+      "total_pnl": 77982.90317214205,
+      "total_return_pct": 0.1980415952387302
     },
     {
       "ticker": "00631L.TW",
@@ -58,16 +58,16 @@
       "currency": "TWD",
       "shares": 46600.0,
       "avg_cost": 21.14910482849829,
-      "last_price": 26.600000381469727,
+      "last_price": 28.34000015258789,
       "total_cost": 985548.2850080205,
       "gross_buy_outlay": 1239337.54295,
-      "market_value": 1234074.9646978283,
+      "market_value": 1314800.1573791313,
       "realized_pnl": 65465.155308020476,
-      "unrealized_pnl": 248526.67968980782,
-      "unrealized_return_pct": 0.252170982863397,
+      "unrealized_pnl": 329251.87237111083,
+      "unrealized_return_pct": 0.33407989986856035,
       "dividends": 0.0,
-      "total_pnl": 313991.8349978283,
-      "total_return_pct": 0.25335457380757814
+      "total_pnl": 394717.0276791313,
+      "total_return_pct": 0.3184903337468377
     },
     {
       "ticker": "2330.TW",
@@ -75,16 +75,16 @@
       "currency": "TWD",
       "shares": 3000.0,
       "avg_cost": 1085.81508475,
-      "last_price": 2080.0,
+      "last_price": 2185.0,
       "total_cost": 3257445.25425,
       "gross_buy_outlay": 3257445.25425,
-      "market_value": 6212388.0,
+      "market_value": 6525994.125,
       "realized_pnl": 0.0,
-      "unrealized_pnl": 2954942.74575,
-      "unrealized_return_pct": 0.90713504452444,
+      "unrealized_pnl": 3268548.87075,
+      "unrealized_return_pct": 1.003408688598991,
       "dividends": 17995.0,
-      "total_pnl": 2972937.74575,
-      "total_return_pct": 0.9126593123464461
+      "total_pnl": 3286543.87075,
+      "total_return_pct": 1.0089329564209972
     },
     {
       "ticker": "MSFT",
@@ -92,16 +92,16 @@
       "currency": "USD",
       "shares": 8.0,
       "avg_cost": 412.3,
-      "last_price": 432.9200134277344,
+      "last_price": 415.75,
       "total_cost": 3298.4,
       "gross_buy_outlay": 3298.4,
-      "market_value": 3463.360107421875,
+      "market_value": 3326.0,
       "realized_pnl": 0.0,
-      "unrealized_pnl": 164.9601074218749,
-      "unrealized_return_pct": 0.05001215965979715,
+      "unrealized_pnl": 27.59999999999991,
+      "unrealized_return_pct": 0.00836769342711615,
       "dividends": 0.0,
-      "total_pnl": 164.9601074218749,
-      "total_return_pct": 0.05001215965979715
+      "total_pnl": 27.59999999999991,
+      "total_return_pct": 0.00836769342711615
     },
     {
       "ticker": "NVDA",
@@ -109,16 +109,16 @@
       "currency": "USD",
       "shares": 15.0,
       "avg_cost": 121.4,
-      "last_price": 202.5,
+      "last_price": 199.63999938964844,
       "total_cost": 1821.0,
       "gross_buy_outlay": 1821.0,
-      "market_value": 3037.5,
+      "market_value": 2994.5999908447266,
       "realized_pnl": 0.0,
-      "unrealized_pnl": 1216.5,
-      "unrealized_return_pct": 0.6680395387149918,
+      "unrealized_pnl": 1173.5999908447266,
+      "unrealized_return_pct": 0.6444810493381256,
       "dividends": 0.0,
-      "total_pnl": 1216.5,
-      "total_return_pct": 0.6680395387149918
+      "total_pnl": 1173.5999908447266,
+      "total_return_pct": 0.6444810493381256
     }
   ]
 }
