@@ -3,14 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#132238">
+  <meta name="theme-color" content="#F4EADC">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="股票報表">
+  <meta name="apple-mobile-web-app-title" content="Ethan's Portfolio">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./icon.svg">
-  <title>股票庫存績效報表</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+  <title>Ethan's Portfolio</title>
   <style>
     :root {
       --bg: #f7f3ec;
@@ -647,7 +650,7 @@
       .card .label {
         margin-bottom: 8px;
         font-size: 9px;
-        letter-spacing: 0.14em;
+        letter-spacing: 0;
       }
       .card .value,
       .status-value {
@@ -1157,13 +1160,477 @@
         border-color: rgba(255, 255, 255, 0.12);
       }
     }
+    /* Editorial Luxury Minimal final overrides */
+    :root {
+      --bg: #f4eadc;
+      --bg-soft: #fffaf2;
+      --bg-tint: #efe4d2;
+      --surface: rgba(255, 252, 246, 0.9);
+      --surface-strong: rgba(255, 250, 241, 0.96);
+      --surface-deep: #101827;
+      --surface-ink: #101827;
+      --line: rgba(43, 36, 28, 0.12);
+      --line-strong: rgba(43, 36, 28, 0.2);
+      --text: #334052;
+      --heading: #101827;
+      --muted: #7f756a;
+      --soft: #3d4655;
+      --dim: #9a8f82;
+      --brand: #101827;
+      --brand-2: #b99255;
+      --amber: #b99255;
+      --red: #bd655c;
+      --green: #687f5d;
+      --shadow-lg: 0 30px 70px rgba(45, 37, 26, 0.13);
+      --shadow-md: 0 18px 42px rgba(45, 37, 26, 0.1);
+      --shadow-sm: 0 9px 22px rgba(45, 37, 26, 0.08);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --font-display: "Cormorant Garamond", "Noto Serif TC", "Source Han Serif TC", serif;
+      --font-sans: "Noto Sans TC", "Aptos", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+      --font-numeric: "Aptos", "Noto Sans TC", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+    }
+    * {
+      letter-spacing: 0 !important;
+    }
+    html {
+      background: var(--bg);
+    }
+    body {
+      color: var(--soft);
+      font-family: var(--font-sans);
+      background:
+        linear-gradient(180deg, rgba(255, 250, 242, 0.98) 0%, rgba(247, 239, 227, 0.98) 54%, #efe4d2 100%),
+        linear-gradient(90deg, rgba(185, 146, 85, 0.05), transparent 34%, rgba(138, 168, 189, 0.05));
+    }
+    body::before {
+      background:
+        linear-gradient(rgba(43, 36, 28, 0.026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(43, 36, 28, 0.018) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 78%);
+      opacity: 1;
+    }
+    .topbar,
+    .hero,
+    .panel,
+    .card,
+    .chart-module,
+    .app-bar,
+    .table-shell {
+      background:
+        linear-gradient(180deg, rgba(255, 252, 246, 0.94), rgba(249, 242, 231, 0.88)),
+        linear-gradient(135deg, rgba(185, 146, 85, 0.06), transparent 60%);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(16px);
+      color: var(--soft);
+    }
+    .topbar:hover,
+    .hero:hover,
+    .panel:hover,
+    .chart-module:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--line-strong);
+    }
+    .topbar {
+      border-radius: 999px;
+      padding: 13px 16px;
+    }
+    .brand-mark {
+      border-radius: 12px;
+      background: linear-gradient(135deg, #101827 0%, #263241 48%, #b99255 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 22px rgba(45, 37, 26, 0.14);
+    }
+    .brand-eyebrow,
+    .eyebrow,
+    .panel-kicker,
+    .mini-label,
+    .label,
+    .table-caption,
+    .module-kicker,
+    .muted,
+    .app-bar-note {
+      color: var(--dim);
+      letter-spacing: 0;
+    }
+    .brand-name,
+    .section-title,
+    .hero h1,
+    .module-title,
+    .app-bar-title {
+      color: var(--heading);
+      letter-spacing: 0;
+    }
+    .brand-name,
+    .section-title,
+    .hero h1 {
+      font-family: var(--font-display);
+      font-weight: 700;
+    }
+    .brand-name {
+      font-size: 19px;
+    }
+    .meta-pill,
+    .market-label,
+    .hero-tag,
+    .chart-switcher {
+      background: rgba(255, 250, 241, 0.84);
+      border-color: var(--line);
+      color: var(--soft);
+      box-shadow: 0 6px 16px rgba(45, 37, 26, 0.06);
+      letter-spacing: 0;
+    }
+    .meta-pill strong,
+    .hero-tag strong {
+      color: var(--heading);
+    }
+    .meta-action {
+      background: var(--heading);
+      color: #fffaf2;
+      border-color: var(--heading);
+      text-decoration: none;
+    }
+    .meta-action:hover {
+      background: #2b3443;
+      color: #fffaf2;
+      box-shadow: 0 10px 24px rgba(45, 37, 26, 0.16);
+    }
+    .hero {
+      padding: 32px;
+      border-radius: 24px;
+      min-height: 260px;
+      background:
+        linear-gradient(90deg, rgba(255, 250, 242, 0.94) 0%, rgba(255, 250, 242, 0.82) 48%, rgba(255, 250, 242, 0.28) 100%),
+        url("./assets/editorial-hero-bg.png");
+      background-size: auto, cover;
+      background-position: center, center right;
+      background-repeat: no-repeat;
+    }
+    .hero::before {
+      display: block;
+      background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.55), transparent 34%),
+        linear-gradient(90deg, transparent 0%, rgba(185, 146, 85, 0.12) 52%, transparent 100%);
+      pointer-events: none;
+    }
+    .hero::after {
+      display: block;
+      inset: auto 32px 32px 32px;
+      width: auto;
+      height: 1px;
+      border-radius: 0;
+      background: linear-gradient(90deg, transparent, rgba(16, 24, 39, 0.5), rgba(185, 146, 85, 0.6), transparent);
+      filter: none;
+    }
+    .hero-copy {
+      gap: 20px;
+    }
+    .hero h1 {
+      margin: 10px 0 12px;
+      font-size: 66px;
+      line-height: 0.92;
+      font-weight: 600;
+      max-width: 720px;
+      color: var(--heading);
+    }
+    .hero h1::after {
+      content: none;
+    }
+    .hero p,
+    .panel-head p,
+    .module-note {
+      color: var(--muted);
+    }
+    .hero-tags::after {
+      content: none;
+      display: none;
+    }
+    .hero-tag {
+      padding: 11px 14px;
+      color: var(--heading);
+    }
+    .panel,
+    .chart-module {
+      border-radius: 18px;
+      padding: 20px;
+    }
+    .section-title {
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 600;
+    }
+    .cards {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-areas: none;
+      gap: 12px;
+      background: transparent;
+      box-shadow: none;
+      padding: 0;
+      margin-top: 16px;
+    }
+    .card {
+      border-radius: 14px;
+      min-height: 118px;
+      padding: 17px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card.feature,
+    .card.cost,
+    .card.pnl,
+    .card.return {
+      grid-area: auto;
+      min-height: 112px;
+    }
+    .card::before {
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(16, 24, 39, 0.28), rgba(185, 146, 85, 0.42), transparent);
+    }
+    .card::after,
+    .card.feature::after {
+      display: none;
+    }
+    .card .label {
+      margin-top: 6px;
+      margin-bottom: 15px;
+      color: #5f574d;
+      opacity: 1;
+      font-weight: 700;
+    }
+    .card .value,
+    .card.feature .value {
+      font-family: var(--font-display);
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 700;
+      color: var(--heading);
+      letter-spacing: 0;
+    }
+    .card.feature .value { font-size: 32px; }
+    .card.slate,
+    .card.gold,
+    .card.amber {
+      background: linear-gradient(180deg, rgba(255, 250, 241, 0.98), rgba(246, 235, 217, 0.9));
+      border-color: rgba(185, 146, 85, 0.2);
+    }
+    .card.teal,
+    .card.green {
+      background: linear-gradient(180deg, rgba(250, 253, 246, 0.98), rgba(232, 239, 224, 0.9));
+      border-color: rgba(104, 127, 93, 0.2);
+    }
+    .card.red {
+      background: linear-gradient(180deg, rgba(255, 248, 244, 0.98), rgba(246, 226, 220, 0.9));
+      border-color: rgba(189, 101, 92, 0.22);
+    }
+    .card.slate .value,
+    .card.gold .value,
+    .card.amber .value {
+      color: var(--heading);
+    }
+    .card.slate .label,
+    .card.gold .label,
+    .card.amber .label,
+    .card.teal .label,
+    .card.green .label,
+    .card.red .label {
+      color: #5f574d;
+      opacity: 1;
+    }
+    .card.teal .value,
+    .card.green .value {
+      color: var(--green);
+    }
+    .card.red .value {
+      color: var(--red);
+    }
+    .table-shell {
+      background: rgba(255, 252, 246, 0.94);
+      border-radius: 14px;
+    }
+    .detail-table thead th {
+      background: #eee3d3;
+      color: var(--heading);
+    }
+    .detail-table th,
+    .detail-table td {
+      color: var(--soft);
+      border-bottom-color: rgba(43, 36, 28, 0.1);
+    }
+    .detail-table th:first-child,
+    .detail-table td:first-child,
+    .detail-table th:nth-child(2),
+    .detail-table td:nth-child(2) {
+      color: var(--heading);
+    }
+    .detail-table tbody tr:nth-child(even) {
+      background: rgba(185, 146, 85, 0.045);
+    }
+    .detail-table tbody tr:hover {
+      background: rgba(138, 168, 189, 0.1);
+    }
+    .chart-period-select {
+      border-radius: 999px;
+      background: rgba(255, 250, 241, 0.96);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
+    }
+    .chart-period-select select {
+      background: rgba(255, 250, 241, 0.96);
+      color: var(--heading);
+      -webkit-text-fill-color: var(--heading);
+      border-color: var(--line);
+      box-shadow: none;
+    }
+    .chart-period-select select:focus,
+    .chart-period-select select:focus-visible,
+    .chart-period-select select:active {
+      background: var(--heading);
+      color: #fffaf2;
+      -webkit-text-fill-color: #fffaf2;
+      outline: none;
+      border-color: var(--heading);
+      box-shadow: 0 0 0 2px rgba(16, 24, 39, 0.12);
+    }
+    .chart-period-select select option {
+      background: #fffaf2;
+      color: var(--heading);
+    }
+    .chart-period-select::after {
+      color: var(--muted);
+    }
+    .chart-switcher button.is-active {
+      background: var(--heading);
+      color: #fffaf2;
+      box-shadow: 0 9px 18px rgba(45, 37, 26, 0.14);
+    }
+    .js-plotly-plot .updatemenu-button rect,
+    .js-plotly-plot .rangeselector rect {
+      fill: rgba(255, 250, 241, 0.96) !important;
+      stroke: rgba(43, 36, 28, 0.14) !important;
+    }
+    .js-plotly-plot .updatemenu-button text,
+    .js-plotly-plot .rangeselector text {
+      fill: #3d4655 !important;
+    }
+    .js-plotly-plot .updatemenu-button:hover rect,
+    .js-plotly-plot .rangeselector:hover rect {
+      fill: rgba(238, 227, 211, 0.98) !important;
+    }
+    .js-plotly-plot .updatemenu-button.active rect,
+    .js-plotly-plot .rangeselector .button.active rect,
+    .js-plotly-plot g.updatemenu-button.active rect {
+      fill: #101827 !important;
+      stroke: #101827 !important;
+    }
+    .js-plotly-plot .updatemenu-button.active text,
+    .js-plotly-plot .rangeselector .button.active text,
+    .js-plotly-plot g.updatemenu-button.active text {
+      fill: #fffaf2 !important;
+    }
+    .chart-scroll .js-plotly-plot {
+      background: rgba(255, 252, 246, 0.84);
+      border-color: var(--line);
+      box-shadow: var(--shadow-sm);
+    }
+    @media (max-width: 840px) {
+      .hero h1 {
+        font-size: 48px;
+      }
+    }
+    @media (max-width: 430px) {
+      .topbar,
+      .hero,
+      .panel,
+      .chart-module {
+        padding: 14px;
+      }
+      .topbar {
+        border-radius: 20px;
+      }
+      .hero {
+        min-height: 210px;
+        background:
+          linear-gradient(90deg, rgba(255, 250, 242, 0.96) 0%, rgba(255, 250, 242, 0.86) 60%, rgba(255, 250, 242, 0.42) 100%),
+          url("./assets/editorial-hero-bg.png");
+        background-size: auto, cover;
+        background-position: center, center right;
+        background-repeat: no-repeat;
+      }
+      .hero h1 {
+        font-size: 38px;
+        line-height: 0.96;
+        white-space: normal;
+      }
+      .hero h1::after {
+        content: none;
+      }
+      .hero-tags::after {
+        content: none;
+        display: none;
+      }
+      .cards {
+        grid-template-columns: 1fr;
+        grid-template-areas: none;
+        gap: 10px;
+      }
+      .card,
+      .card.feature,
+      .card.cost,
+      .card.pnl,
+      .card.return {
+        grid-area: auto;
+        min-height: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 18px 15px 13px;
+      }
+      .card .label {
+        margin-top: 4px;
+        margin-bottom: 0;
+        font-size: 0.74rem;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .card .value,
+      .card.feature .value {
+        font-size: 1.28rem;
+        line-height: 1;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .chart-period-select {
+        width: 100%;
+        background: rgba(255, 250, 241, 0.96);
+      }
+      .chart-period-select select {
+        width: 100%;
+        min-height: 40px;
+        background: rgba(255, 250, 241, 0.96);
+        color: var(--heading);
+        -webkit-text-fill-color: var(--heading);
+      }
+      .chart-period-select select:focus,
+      .chart-period-select select:active {
+        background: var(--heading);
+        color: #fffaf2;
+        -webkit-text-fill-color: #fffaf2;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="shell">
     <div class="app-bar">
       <div>
-        <div class="app-bar-title">股票庫存績效報表</div>
+        <div class="app-bar-title">Ethan's Portfolio</div>
         <div class="app-bar-note">{{ generated_at }}</div>
       </div>
       <div class="meta-pill">{{ overview.market_scope }}</div>
@@ -1197,11 +1664,7 @@
           <div class="hero-copy">
             <div>
               <div class="eyebrow">Modern Finance Dashboard</div>
-              <h1>股票庫存績效報表</h1>
-            </div>
-            <div class="hero-tags">
-              <div class="hero-tag">Live Snapshot</div>
-              <div class="hero-tag">PWA Ready</div>
+              <h1>Ethan's Portfolio</h1>
             </div>
           </div>
         </div>

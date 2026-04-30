@@ -7,6 +7,8 @@ pages/
 
 output/*
 !output/.gitkeep
+!output/assets/
+!output/assets/editorial-hero-bg.png
 !output/report.html
 !output/report.json
 !output/manifest.webmanifest

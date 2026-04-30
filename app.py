@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import platform
 import sys
 import traceback
@@ -40,6 +41,8 @@ ROOT_DIR = Path(__file__).parent
 DATA_DIR = ROOT_DIR / "data"
 CACHE_DIR = ROOT_DIR / "cache"
 OUTPUT_DIR = ROOT_DIR / "output"
+ASSET_DIR = OUTPUT_DIR / "assets"
+HERO_BACKGROUND_PATH = ASSET_DIR / "editorial-hero-bg.png"
 TAIPEI_TIMEZONE = "Asia/Taipei"
 
 
@@ -51,6 +54,14 @@ def get_app_dir() -> Path:
 
 def current_taipei_timestamp() -> pd.Timestamp:
     return pd.Timestamp.now(tz=TAIPEI_TIMEZONE)
+
+
+def css_image_url(path: Path) -> str:
+    if not path.exists():
+        return "none"
+    mime_type = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f'url("data:{mime_type};base64,{encoded}")'
 
 
 def write_error_log(exc: Exception, args: argparse.Namespace | None = None) -> Path:
@@ -165,8 +176,11 @@ def run_cli(args: argparse.Namespace) -> int:
 def inject_streamlit_theme() -> None:
     import streamlit as st
 
-    st.markdown(
-        """
+    hero_background_css = css_image_url(HERO_BACKGROUND_PATH)
+    theme_html = """
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
         <style>
         :root {
             --tv-bg: #f7f3ec;
@@ -646,7 +660,7 @@ def inject_streamlit_theme() -> None:
             .tv-kpi-label {
                 margin-bottom: 0.55rem;
                 font-size: 9px;
-                letter-spacing: 0.14em;
+            letter-spacing: 0;
             }
             .tv-kpi-value {
                 font-size: 1.45rem;
@@ -1028,10 +1042,410 @@ def inject_streamlit_theme() -> None:
                 white-space: nowrap;
             }
         }
+        /* Editorial Luxury Minimal final overrides */
+        :root {
+            --tv-bg: #f4eadc;
+            --tv-bg-soft: #fffaf2;
+            --tv-bg-tint: #efe4d2;
+            --tv-panel: rgba(255, 252, 246, 0.9);
+            --tv-panel-strong: rgba(255, 250, 241, 0.96);
+            --tv-panel-deep: #101827;
+            --tv-panel-ink: #101827;
+            --tv-text: #334052;
+            --tv-heading: #101827;
+            --tv-muted: #7f756a;
+            --tv-soft: #3d4655;
+            --tv-dim: #9a8f82;
+            --tv-line: rgba(43, 36, 28, 0.12);
+            --tv-line-strong: rgba(43, 36, 28, 0.2);
+            --tv-green: #687f5d;
+            --tv-red: #bd655c;
+            --tv-amber: #b99255;
+            --tv-blue: #8aa8bd;
+            --tv-shadow-lg: 0 30px 70px rgba(45, 37, 26, 0.13);
+            --tv-shadow-md: 0 18px 42px rgba(45, 37, 26, 0.1);
+            --tv-shadow-sm: 0 9px 22px rgba(45, 37, 26, 0.08);
+            --tv-radius-xl: 24px;
+            --tv-radius-lg: 18px;
+            --tv-radius-md: 14px;
+            --tv-radius-sm: 10px;
+            --tv-font-display: "Cormorant Garamond", "Noto Serif TC", "Source Han Serif TC", serif;
+            --tv-font-sans: "Noto Sans TC", "Aptos", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+            --tv-font-numeric: "Aptos", "Noto Sans TC", "Segoe UI Variable Display", "Microsoft JhengHei", sans-serif;
+        }
+        * {
+            letter-spacing: 0 !important;
+        }
+        html, body, [class*="css"] {
+            font-family: var(--tv-font-sans) !important;
+            letter-spacing: 0 !important;
+        }
+        .stApp {
+            background:
+                linear-gradient(180deg, rgba(255, 250, 242, 0.98) 0%, rgba(247, 239, 227, 0.98) 54%, #efe4d2 100%),
+                linear-gradient(90deg, rgba(185, 146, 85, 0.05), transparent 34%, rgba(138, 168, 189, 0.05));
+            color: var(--tv-soft);
+        }
+        .stApp::before {
+            background-image:
+                linear-gradient(rgba(43, 36, 28, 0.026) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(43, 36, 28, 0.018) 1px, transparent 1px);
+            background-size: 34px 34px;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 78%);
+            opacity: 1;
+        }
+        h1, h2, h3 {
+            font-family: var(--tv-font-display) !important;
+            color: var(--tv-heading) !important;
+            letter-spacing: 0 !important;
+        }
+        p, label, .stCaption, .stMarkdown, .stTextInput label, .stNumberInput label, .stTextInput label p {
+            color: var(--tv-soft) !important;
+        }
+        .tv-topbar,
+        .tv-hero,
+        .tv-panel,
+        .tv-kpi-card,
+        .tv-table-wrap,
+        .stPlotlyChart {
+            background:
+                linear-gradient(180deg, rgba(255, 252, 246, 0.94), rgba(249, 242, 231, 0.88)),
+                linear-gradient(135deg, rgba(185, 146, 85, 0.06), transparent 60%);
+            border: 1px solid var(--tv-line);
+            box-shadow: var(--tv-shadow-md);
+            backdrop-filter: blur(16px);
+            color: var(--tv-soft);
+        }
+        .tv-topbar:hover,
+        .tv-hero:hover,
+        .tv-panel:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--tv-shadow-lg);
+            border-color: var(--tv-line-strong);
+        }
+        .tv-topbar {
+            border-radius: 999px;
+            padding: 0.8rem 1rem;
+        }
+        .tv-brand-mark {
+            border-radius: 12px;
+            background:
+                linear-gradient(135deg, #101827 0%, #263241 48%, #b99255 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 22px rgba(45, 37, 26, 0.14);
+        }
+        .tv-brand-eyebrow,
+        .tv-eyebrow,
+        .tv-section-kicker,
+        .tv-kpi-label,
+        .tv-mini-label {
+            font-family: var(--tv-font-sans) !important;
+            color: var(--tv-dim) !important;
+            letter-spacing: 0 !important;
+        }
+        .tv-brand-title,
+        .tv-section-title {
+            color: var(--tv-heading) !important;
+            letter-spacing: 0 !important;
+        }
+        .tv-brand-title {
+            font-family: var(--tv-font-display) !important;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .tv-pill,
+        .tv-chip,
+        .tv-market-pill {
+            background: rgba(255, 250, 241, 0.84);
+            border-color: var(--tv-line);
+            color: var(--tv-soft) !important;
+            box-shadow: 0 6px 16px rgba(45, 37, 26, 0.06);
+            letter-spacing: 0 !important;
+        }
+        .tv-pill strong,
+        .tv-chip strong {
+            color: var(--tv-heading) !important;
+        }
+        .tv-hero {
+            padding: 2rem;
+            border-radius: 24px;
+            overflow: hidden;
+            min-height: 260px;
+            background:
+                linear-gradient(90deg, rgba(255, 250, 242, 0.94) 0%, rgba(255, 250, 242, 0.82) 48%, rgba(255, 250, 242, 0.28) 100%),
+                __HERO_BACKGROUND_CSS__;
+            background-size: auto, cover;
+            background-position: center, center right;
+            background-repeat: no-repeat;
+        }
+        .tv-hero::before {
+            display: block;
+            background:
+                linear-gradient(120deg, rgba(255, 255, 255, 0.55), transparent 34%),
+                linear-gradient(90deg, transparent 0%, rgba(185, 146, 85, 0.12) 52%, transparent 100%);
+            pointer-events: none;
+        }
+        .tv-hero::after {
+            display: block;
+            inset: auto 2rem 2rem 2rem;
+            width: auto;
+            height: 1px;
+            border-radius: 0;
+            background: linear-gradient(90deg, transparent, rgba(16, 24, 39, 0.5), rgba(185, 146, 85, 0.6), transparent);
+            filter: none;
+        }
+        .tv-hero-copy {
+            gap: 1.25rem;
+        }
+        .tv-hero h1 {
+            margin: 0.45rem 0 0.6rem !important;
+            font-family: var(--tv-font-display) !important;
+            font-size: 4.15rem !important;
+            line-height: 0.92 !important;
+            font-weight: 600;
+            color: var(--tv-heading) !important;
+            letter-spacing: 0 !important;
+            max-width: 680px;
+        }
+        .tv-hero h1::after {
+            content: none !important;
+        }
+        .tv-hero p,
+        .tv-panel-head p {
+            color: var(--tv-muted) !important;
+        }
+        .tv-chip-row::after {
+            content: none;
+            display: none;
+        }
+        .tv-chip {
+            padding: 0.68rem 0.9rem;
+            color: var(--tv-heading) !important;
+        }
+        .tv-panel {
+            border-radius: 18px;
+            padding: 1.25rem;
+        }
+        .tv-section-title {
+            font-family: var(--tv-font-display) !important;
+            font-size: 2rem;
+            line-height: 1;
+            font-weight: 600;
+        }
+        .tv-card-grid {
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-areas: none;
+            gap: 12px;
+            margin-top: 1rem;
+        }
+        .tv-kpi-card {
+            border-radius: 14px;
+            min-height: 112px;
+            padding: 1.05rem 1rem;
+            box-shadow: var(--tv-shadow-sm);
+        }
+        .tv-kpi-card.feature,
+        .tv-kpi-card.cost,
+        .tv-kpi-card.pnl,
+        .tv-kpi-card.return {
+            grid-area: auto;
+            min-height: 112px;
+        }
+        .tv-kpi-card::before {
+            top: 0.85rem;
+            left: 1rem;
+            right: 1rem;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(16, 24, 39, 0.28), rgba(185, 146, 85, 0.42), transparent);
+        }
+        .tv-kpi-card::after,
+        .tv-kpi-card.feature::after {
+            display: none !important;
+        }
+        .tv-kpi-label {
+            margin-top: 0.35rem;
+            margin-bottom: 0.95rem;
+            color: #5f574d !important;
+            opacity: 1 !important;
+            font-weight: 700;
+        }
+        .tv-kpi-value,
+        .tv-kpi-card.feature .tv-kpi-value {
+            font-family: var(--tv-font-display) !important;
+            font-size: 2rem;
+            line-height: 1;
+            font-weight: 700;
+            color: var(--tv-heading) !important;
+            letter-spacing: 0 !important;
+        }
+        .tv-kpi-card.feature .tv-kpi-value { font-size: 2rem; }
+        .tv-kpi-card.slate,
+        .tv-kpi-card.gold,
+        .tv-kpi-card.amber {
+            background: linear-gradient(180deg, rgba(255, 250, 241, 0.98), rgba(246, 235, 217, 0.9));
+            border-color: rgba(185, 146, 85, 0.2);
+        }
+        .tv-kpi-card.teal,
+        .tv-kpi-card.green {
+            background: linear-gradient(180deg, rgba(250, 253, 246, 0.98), rgba(232, 239, 224, 0.9));
+            border-color: rgba(104, 127, 93, 0.2);
+        }
+        .tv-kpi-card.red {
+            background: linear-gradient(180deg, rgba(255, 248, 244, 0.98), rgba(246, 226, 220, 0.9));
+            border-color: rgba(189, 101, 92, 0.22);
+        }
+        .tv-kpi-card.slate .tv-kpi-value,
+        .tv-kpi-card.gold .tv-kpi-value,
+        .tv-kpi-card.amber .tv-kpi-value {
+            color: var(--tv-heading) !important;
+        }
+        .tv-kpi-card.slate .tv-kpi-label,
+        .tv-kpi-card.gold .tv-kpi-label,
+        .tv-kpi-card.amber .tv-kpi-label,
+        .tv-kpi-card.teal .tv-kpi-label,
+        .tv-kpi-card.green .tv-kpi-label,
+        .tv-kpi-card.red .tv-kpi-label {
+            color: #5f574d !important;
+            opacity: 1 !important;
+        }
+        .tv-kpi-card.teal .tv-kpi-value,
+        .tv-kpi-card.green .tv-kpi-value {
+            color: var(--tv-green) !important;
+        }
+        .tv-kpi-card.red .tv-kpi-value {
+            color: var(--tv-red) !important;
+        }
+        .tv-table-wrap {
+            background: rgba(255, 252, 246, 0.94);
+            border-radius: 14px;
+        }
+        .tv-table-wrap thead th {
+            background: #eee3d3;
+            color: var(--tv-heading) !important;
+        }
+        .tv-table-wrap th,
+        .tv-table-wrap td {
+            color: var(--tv-soft);
+            border-bottom-color: rgba(43, 36, 28, 0.1);
+        }
+        .tv-table-wrap td:first-child,
+        .tv-table-wrap td:nth-child(2) {
+            color: var(--tv-heading);
+        }
+        .tv-table-wrap tbody tr:nth-child(even) {
+            background: rgba(185, 146, 85, 0.045);
+        }
+        .tv-table-wrap tbody tr:hover {
+            background: rgba(138, 168, 189, 0.1);
+        }
+        .stButton > button,
+        .stTextInput > div > div > input,
+        .stNumberInput input {
+            background: rgba(255, 250, 241, 0.96);
+            color: var(--tv-heading);
+            border-color: var(--tv-line) !important;
+            box-shadow: none;
+        }
+        .stButton > button {
+            background: var(--tv-heading);
+            color: #fffaf2;
+        }
+        .stButton > button:hover {
+            background: #2b3443;
+            color: #fffaf2;
+        }
+        .stPlotlyChart {
+            background: rgba(255, 252, 246, 0.84);
+            border-radius: 14px;
+            box-shadow: var(--tv-shadow-sm);
+        }
+        .stPlotlyChart .updatemenu-button rect,
+        .stPlotlyChart .rangeselector rect {
+            fill: rgba(255, 250, 241, 0.96) !important;
+            stroke: rgba(43, 36, 28, 0.14) !important;
+        }
+        .stPlotlyChart .updatemenu-button text,
+        .stPlotlyChart .rangeselector text {
+            fill: #3d4655 !important;
+        }
+        .stPlotlyChart .updatemenu-button:hover rect,
+        .stPlotlyChart .rangeselector:hover rect {
+            fill: rgba(238, 227, 211, 0.98) !important;
+        }
+        .stPlotlyChart .updatemenu-button.active rect,
+        .stPlotlyChart .rangeselector .button.active rect,
+        .stPlotlyChart g.updatemenu-button.active rect {
+            fill: #101827 !important;
+            stroke: #101827 !important;
+        }
+        .stPlotlyChart .updatemenu-button.active text,
+        .stPlotlyChart .rangeselector .button.active text,
+        .stPlotlyChart g.updatemenu-button.active text {
+            fill: #fffaf2 !important;
+        }
+        @media (max-width: 768px) {
+            .tv-topbar {
+                border-radius: 20px;
+            }
+            .tv-hero h1 {
+                font-size: 3rem !important;
+            }
+        }
+        @media (max-width: 430px) {
+            .tv-hero {
+                padding: 1.1rem;
+                min-height: 210px;
+                background:
+                    linear-gradient(90deg, rgba(255, 250, 242, 0.96) 0%, rgba(255, 250, 242, 0.86) 60%, rgba(255, 250, 242, 0.42) 100%),
+                    __HERO_BACKGROUND_CSS__;
+                background-size: auto, cover;
+                background-position: center, center right;
+                background-repeat: no-repeat;
+            }
+            .tv-hero h1 {
+                font-size: 2.35rem !important;
+                line-height: 0.96 !important;
+                white-space: normal;
+            }
+            .tv-chip-row::after {
+                content: none;
+                display: none;
+            }
+            .tv-card-grid {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-areas: none;
+                gap: 10px;
+            }
+            .tv-kpi-card,
+            .tv-kpi-card.feature,
+            .tv-kpi-card.cost,
+            .tv-kpi-card.pnl,
+            .tv-kpi-card.return {
+                grid-area: auto;
+                min-height: auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.85rem;
+                padding: 1.12rem 0.9rem 0.78rem;
+            }
+            .tv-kpi-label {
+                margin-top: 0.28rem;
+                margin-bottom: 0;
+                font-size: 0.72rem;
+                line-height: 1.2;
+                white-space: nowrap;
+            }
+            .tv-kpi-value,
+            .tv-kpi-card.feature .tv-kpi-value {
+                font-size: 1.28rem;
+                line-height: 1;
+                text-align: right;
+                white-space: nowrap;
+            }
+        }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+        """
+    st.markdown(theme_html.replace("__HERO_BACKGROUND_CSS__", hero_background_css), unsafe_allow_html=True)
 
 
 def render_kpi_cards(snapshot: dict[str, dict[str, float]]) -> None:
@@ -1080,11 +1494,7 @@ def render_dashboard_hero(snapshot: dict[str, dict[str, float]], stock_summary: 
             <div class="tv-hero-copy">
               <div>
                 <div class="tv-eyebrow">Modern Finance Dashboard</div>
-                <h1>股票庫存績效追蹤工具</h1>
-              </div>
-              <div class="tv-chip-row">
-                <div class="tv-chip">Live Snapshot</div>
-                <div class="tv-chip">PWA Ready</div>
+                <h1>Ethan's Portfolio</h1>
               </div>
             </div>
           </div>

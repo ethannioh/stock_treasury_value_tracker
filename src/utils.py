@@ -109,10 +109,10 @@ def pnl_css(value: float | int | None) -> str:
     if value is None or pd.isna(value):
         return ""
     if float(value) > 0:
-        return "color: #22ab94; font-weight: 700;"
+        return "color: #687f5d; font-weight: 700;"
     if float(value) < 0:
-        return "color: #f23645; font-weight: 700;"
-    return "color: #6b7280; font-weight: 600;"
+        return "color: #bd655c; font-weight: 700;"
+    return "color: #7f756a; font-weight: 600;"
 
 
 def is_taiwan_market(currency: str | None) -> bool:
@@ -152,5 +152,5 @@ def return_tone(value: float | int | None, currency: str | None) -> str:
 
 def return_css(value: float | int | None, currency: str | None) -> str:
     tone = return_tone(value, currency)
-    color = {"green": "#22ab94", "red": "#f23645", "orange": "#ff9800"}[tone]
+    color = {"green": "#687f5d", "red": "#bd655c", "orange": "#b99255"}[tone]
     return f"color: {color}; font-weight: 700;"

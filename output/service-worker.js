@@ -1,5 +1,5 @@
 const CACHE_NAME = "stock-treasury-pwa-v2";
-const ASSETS = ["./", "./report.json", "./manifest.webmanifest", "./icon.svg"];
+const ASSETS = ["./", "./report.json", "./manifest.webmanifest", "./icon.svg", "./assets/editorial-hero-bg.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));

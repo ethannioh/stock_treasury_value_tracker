@@ -1,12 +1,12 @@
 {
-  "name": "Stock Treasury Tracker",
-  "short_name": "Treasury",
+  "name": "Ethan's Portfolio",
+  "short_name": "Portfolio",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#09111A",
-  "theme_color": "#0D1824",
+  "background_color": "#FBF7EF",
+  "theme_color": "#F4EADC",
   "icons": [
     {
       "src": "./icon.svg",

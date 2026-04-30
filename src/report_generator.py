@@ -13,31 +13,32 @@ from .utils import display_security_label, display_ticker, format_compact_number
 
 
 TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "templates"
-PWA_APP_NAME = "Stock Treasury Tracker"
-PWA_SHORT_NAME = "Treasury"
-PWA_THEME_COLOR = "#0D1824"
-PWA_BG_COLOR = "#09111A"
-CHART_FONT_FAMILY = "'Space Grotesk', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
+PWA_APP_NAME = "Ethan's Portfolio"
+PWA_SHORT_NAME = "Portfolio"
+PWA_THEME_COLOR = "#F4EADC"
+PWA_BG_COLOR = "#FBF7EF"
+CHART_FONT_FAMILY = "'Noto Sans TC', 'Aptos', 'Segoe UI Variable Display', 'Microsoft JhengHei', sans-serif"
 PWA_ICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="outer" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#58EAFF"/>
-      <stop offset="100%" stop-color="#88FF98"/>
+      <stop offset="0%" stop-color="#101827"/>
+      <stop offset="58%" stop-color="#3B4656"/>
+      <stop offset="100%" stop-color="#B99255"/>
     </linearGradient>
-    <linearGradient id="spark" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#EAF4FF"/>
-      <stop offset="100%" stop-color="#FFFFFF"/>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFAF2"/>
+      <stop offset="100%" stop-color="#EFE4D2"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="#09111A"/>
-  <rect x="28" y="28" width="456" height="456" rx="104" fill="url(#outer)"/>
-  <rect x="86" y="92" width="340" height="252" rx="44" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.16)" stroke-width="8"/>
-  <path d="M118 358h276" stroke="rgba(255,255,255,0.24)" stroke-width="18" stroke-linecap="round"/>
-  <path d="M138 312l70-68 52 40 92-116" fill="none" stroke="url(#spark)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="138" cy="312" r="16" fill="#FFFFFF"/>
-  <circle cx="208" cy="244" r="16" fill="#E8FF85"/>
-  <circle cx="260" cy="284" r="16" fill="#FFFFFF"/>
-  <circle cx="352" cy="168" r="16" fill="#E8FF85"/>
+  <rect width="512" height="512" rx="112" fill="#FBF7EF"/>
+  <rect x="34" y="34" width="444" height="444" rx="96" fill="url(#paper)" stroke="#D8C8B4" stroke-width="8"/>
+  <rect x="88" y="88" width="336" height="336" rx="56" fill="url(#outer)"/>
+  <path d="M128 330h256" stroke="#D8C8B4" stroke-width="14" stroke-linecap="round"/>
+  <path d="M138 298l68-58 54 38 106-116" fill="none" stroke="#FFFAF2" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="138" cy="298" r="14" fill="#FFFAF2"/>
+  <circle cx="206" cy="240" r="14" fill="#D8B46B"/>
+  <circle cx="260" cy="278" r="14" fill="#FFFAF2"/>
+  <circle cx="366" cy="162" r="14" fill="#D8B46B"/>
 </svg>"""
 
 SUMMARY_LABELS = {
@@ -82,16 +83,16 @@ VISIBLE_TABLE_COLUMNS = [
 ]
 
 PIE_COLORS = [
-    "#FF5B6E",
-    "#3B82F6",
-    "#22C55E",
-    "#F59E0B",
-    "#A855F7",
-    "#06B6D4",
-    "#F97316",
-    "#EC4899",
-    "#84CC16",
-    "#8B5CF6",
+    "#BD655C",
+    "#8AA8BD",
+    "#687F5D",
+    "#D8B46B",
+    "#101827",
+    "#C99A8A",
+    "#A79F91",
+    "#B99255",
+    "#7E8F78",
+    "#6F7F93",
 ]
 
 
@@ -220,9 +221,9 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
     if group.empty:
         fig.update_layout(
             title="持股市值占比",
-            paper_bgcolor="#09111A",
-            plot_bgcolor="#0F1D2B",
-            font=dict(color="#FFFFFF", family=CHART_FONT_FAMILY),
+            paper_bgcolor="#FBF7EF",
+            plot_bgcolor="#FFFDF8",
+            font=dict(color="#334052", family=CHART_FONT_FAMILY),
             margin=dict(l=24, r=24, t=72, b=24),
             annotations=[
                 dict(
@@ -230,7 +231,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
                     x=0.5,
                     y=0.5,
                     showarrow=False,
-                    font=dict(size=16, color="rgba(233, 240, 255, 0.66)"),
+                    font=dict(size=16, color="rgba(84, 78, 68, 0.72)"),
                 )
             ],
         )
@@ -253,7 +254,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
             hole=0.42,
             sort=False,
             direction="clockwise",
-            marker=dict(colors=PIE_COLORS, line=dict(color="rgba(255, 255, 255, 0.36)", width=2.2)),
+            marker=dict(colors=PIE_COLORS, line=dict(color="rgba(255, 250, 242, 0.94)", width=2.2)),
             text=group["display_ticker"],
             textinfo="text+percent",
             textposition="outside",
@@ -263,9 +264,9 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
     )
     fig.update_layout(
         title="持股市值占比",
-        paper_bgcolor="#09111A",
-        plot_bgcolor="#0F1D2B",
-        font=dict(color="#FFFFFF", family=CHART_FONT_FAMILY),
+        paper_bgcolor="#FBF7EF",
+        plot_bgcolor="#FFFDF8",
+        font=dict(color="#334052", family=CHART_FONT_FAMILY),
         margin=dict(l=24, r=24, t=72, b=24),
         legend=dict(
             orientation="h",
@@ -273,10 +274,10 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
             y=-0.08,
             xanchor="left",
             yanchor="top",
-            bgcolor="rgba(15, 29, 43, 0.94)",
-            bordercolor="rgba(255, 255, 255, 0.10)",
+            bgcolor="rgba(255, 252, 246, 0.96)",
+            bordercolor="rgba(43, 36, 28, 0.12)",
             borderwidth=1,
-            font=dict(color="rgba(231, 249, 255, 0.74)"),
+            font=dict(color="#334052"),
         ),
     )
     fig.update_layout(title=None, margin=dict(l=24, r=24, t=24, b=24))
@@ -285,7 +286,7 @@ def build_allocation_figure(stock_summary: pd.DataFrame, currency: str) -> go.Fi
         x=0.5,
         y=0.5,
         showarrow=False,
-        font=dict(size=15, color="#FFFFFF"),
+        font=dict(size=15, color="#101827"),
     )
     return fig
 
@@ -396,7 +397,7 @@ def render_pwa_manifest() -> str:
 
 def render_service_worker() -> str:
     return """const CACHE_NAME = "stock-treasury-pwa-v2";
-const ASSETS = ["./", "./report.json", "./manifest.webmanifest", "./icon.svg"];
+const ASSETS = ["./", "./report.json", "./manifest.webmanifest", "./icon.svg", "./assets/editorial-hero-bg.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
