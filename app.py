@@ -1390,13 +1390,26 @@ def inject_streamlit_theme() -> None:
         @media (max-width: 430px) {
             .tv-hero {
                 padding: 1.1rem;
-                min-height: 210px;
+                min-height: 230px;
                 background:
-                    linear-gradient(90deg, rgba(255, 250, 242, 0.86) 0%, rgba(255, 250, 242, 0.5) 56%, rgba(255, 250, 242, 0.08) 100%),
-                    __HERO_BACKGROUND_CSS__;
-                background-size: auto, cover;
-                background-position: center, 62% center;
-                background-repeat: no-repeat;
+                    linear-gradient(90deg, rgba(255, 250, 242, 0.7) 0%, rgba(255, 250, 242, 0.32) 48%, rgba(255, 250, 242, 0.02) 100%);
+            }
+            .tv-hero::before {
+                content: "";
+                display: block;
+                position: absolute;
+                inset: 0;
+                background: __HERO_BACKGROUND_CSS__ right center / auto 112% no-repeat;
+                opacity: 0.96;
+                pointer-events: none;
+                z-index: 0;
+            }
+            .tv-hero::after {
+                z-index: 2;
+            }
+            .tv-hero-grid {
+                position: relative;
+                z-index: 1;
             }
             .tv-hero h1 {
                 font-size: 2.35rem !important;

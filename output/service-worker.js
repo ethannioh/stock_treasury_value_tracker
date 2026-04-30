@@ -1,4 +1,4 @@
-const CACHE_NAME = "stock-treasury-pwa-v3";
+const CACHE_NAME = "stock-treasury-pwa-v4";
 const ASSETS = ["./", "./report.json", "./manifest.webmanifest", "./icon.svg", "./assets/editorial-hero-bg.png"];
 
 self.addEventListener("install", (event) => {
