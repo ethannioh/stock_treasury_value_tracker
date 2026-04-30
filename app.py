@@ -1171,18 +1171,14 @@ def inject_streamlit_theme() -> None:
             overflow: hidden;
             min-height: 260px;
             background:
-                linear-gradient(90deg, rgba(255, 250, 242, 0.94) 0%, rgba(255, 250, 242, 0.82) 48%, rgba(255, 250, 242, 0.28) 100%),
+                linear-gradient(90deg, rgba(255, 250, 242, 0.82) 0%, rgba(255, 250, 242, 0.48) 46%, rgba(255, 250, 242, 0.08) 100%),
                 __HERO_BACKGROUND_CSS__;
             background-size: auto, cover;
             background-position: center, center right;
             background-repeat: no-repeat;
         }
         .tv-hero::before {
-            display: block;
-            background:
-                linear-gradient(120deg, rgba(255, 255, 255, 0.55), transparent 34%),
-                linear-gradient(90deg, transparent 0%, rgba(185, 146, 85, 0.12) 52%, transparent 100%);
-            pointer-events: none;
+            display: none;
         }
         .tv-hero::after {
             display: block;
@@ -1208,6 +1204,7 @@ def inject_streamlit_theme() -> None:
         }
         .tv-hero h1::after {
             content: none !important;
+            display: none !important;
         }
         .tv-hero p,
         .tv-panel-head p {
@@ -1395,10 +1392,10 @@ def inject_streamlit_theme() -> None:
                 padding: 1.1rem;
                 min-height: 210px;
                 background:
-                    linear-gradient(90deg, rgba(255, 250, 242, 0.96) 0%, rgba(255, 250, 242, 0.86) 60%, rgba(255, 250, 242, 0.42) 100%),
+                    linear-gradient(90deg, rgba(255, 250, 242, 0.86) 0%, rgba(255, 250, 242, 0.5) 56%, rgba(255, 250, 242, 0.08) 100%),
                     __HERO_BACKGROUND_CSS__;
                 background-size: auto, cover;
-                background-position: center, center right;
+                background-position: center, 62% center;
                 background-repeat: no-repeat;
             }
             .tv-hero h1 {
